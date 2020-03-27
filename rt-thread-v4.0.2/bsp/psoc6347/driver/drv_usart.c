@@ -61,6 +61,21 @@ enum
 };
 
 //by yangwensen@20200313
+#if defined(BSP_USING_UART1)
+void UART1_IRQHandler(void);
+#endif
+#if defined(BSP_USING_UART2)
+void UART2_IRQHandler(void);
+#endif
+#if defined(BSP_USING_UART3)
+void UART3_IRQHandler(void);
+#endif
+#if defined(BSP_USING_UART4)
+void UART4_IRQHandler(void);
+#endif
+#if defined(BSP_USING_UART5)
+void UART5_IRQHandler(void);
+#endif
 #if defined(BSP_USING_UART6)
 void USART6_IRQHandler(void);
 #endif
