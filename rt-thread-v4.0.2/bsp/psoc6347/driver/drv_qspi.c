@@ -60,6 +60,9 @@ struct rt_spi_bus _qspi_bus1;
 struct cy8c63_qspi_bus _cy8c63_qspi_bus;
 
 //cy_smif_event_cb_t RxCmpltCallback;
+#ifndef CY_SMIF_WIDTH_NA
+    #define CY_SMIF_WIDTH_NA        0xFFU  /**< The specific width parameter is not applicable for this memory command. */
+#endif
 /*******************************************************************************
 * Function Name: ExtMemInterrupt
 ****************************************************************************//**
@@ -197,7 +200,7 @@ static void qspi_send_cmd(struct cy8c63_qspi_bus *qspi_bus, struct rt_qspi_messa
 
     if (message->instruction.qspi_lines == 0)
     {
-        cmd_width = CY_SMIF_WIDTH_NA;
+        cmd_width = (cy_en_smif_txfr_width_t)CY_SMIF_WIDTH_NA;
     }
     else if (message->instruction.qspi_lines == 1)
     {
