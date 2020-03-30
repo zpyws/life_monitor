@@ -18,7 +18,7 @@
 #define LOG_TAG             "drv.usart"
 #include <drv_log.h>
 
-#if !defined(BSP_USING_UART1) && !defined(BSP_USING_UART2) && !defined(BSP_USING_UART3) && \
+#if !defined(BSP_USING_UART0) && !defined(BSP_USING_UART1) && !defined(BSP_USING_UART2) && !defined(BSP_USING_UART3) && \
     !defined(BSP_USING_UART4) && !defined(BSP_USING_UART5) && !defined(BSP_USING_UART6) && \
     !defined(BSP_USING_UART7) && !defined(BSP_USING_UART8) && !defined(BSP_USING_LPUART1)
     #error "Please define at least one BSP_USING_UARTx"
@@ -31,6 +31,9 @@
 
 enum
 {
+#ifdef BSP_USING_UART0
+    UART0_INDEX,
+#endif
 #ifdef BSP_USING_UART1
     UART1_INDEX,
 #endif
@@ -61,6 +64,9 @@ enum
 };
 
 //by yangwensen@20200313
+#if defined(BSP_USING_UART0)
+void UART0_IRQHandler(void);
+#endif
 #if defined(BSP_USING_UART1)
 void UART1_IRQHandler(void);
 #endif
@@ -77,11 +83,20 @@ void UART4_IRQHandler(void);
 void UART5_IRQHandler(void);
 #endif
 #if defined(BSP_USING_UART6)
-void USART6_IRQHandler(void);
+void UART6_IRQHandler(void);
+#endif
+#if defined(BSP_USING_UART7)
+void UART7_IRQHandler(void);
+#endif
+#if defined(BSP_USING_UART8)
+void UART8_IRQHandler(void);
 #endif
 
 static const struct cy8c63_uart_config uart_config[] =
 {
+#ifdef BSP_USING_UART0
+    UART0_CONFIG,
+#endif
 #ifdef BSP_USING_UART1
     UART1_CONFIG,
 #endif
@@ -352,8 +367,45 @@ static void dma_isr(struct rt_serial_device *serial)
 }
 #endif
 
+#if defined(BSP_USING_UART0)
+void UART0_IRQHandler(void)
+{
+    /* enter interrupt */
+    rt_interrupt_enter();
+
+    uart_isr(&(uart_obj[UART0_INDEX].serial));
+
+    /* leave interrupt */
+    rt_interrupt_leave();
+}
+#if defined(RT_SERIAL_USING_DMA) && defined(BSP_UART0_RX_USING_DMA)
+void UART0_DMA_RX_IRQHandler(void)
+{
+    /* enter interrupt */
+    rt_interrupt_enter();
+
+    HAL_DMA_IRQHandler(&uart_obj[UART0_INDEX].dma_rx.handle);
+
+    /* leave interrupt */
+    rt_interrupt_leave();
+}
+#endif /* defined(RT_SERIAL_USING_DMA) && defined(BSP_UART0_RX_USING_DMA) */
+#if defined(RT_SERIAL_USING_DMA) && defined(BSP_UART0_TX_USING_DMA)
+void UART0_DMA_TX_IRQHandler(void)
+{
+    /* enter interrupt */
+    rt_interrupt_enter();
+
+    HAL_DMA_IRQHandler(&uart_obj[UART0_INDEX].dma_tx.handle);
+
+    /* leave interrupt */
+    rt_interrupt_leave();
+}
+#endif /* defined(RT_SERIAL_USING_DMA) && defined(BSP_UART0_TX_USING_DMA) */
+#endif /* BSP_USING_UART1 */
+
 #if defined(BSP_USING_UART1)
-void USART1_IRQHandler(void)
+void UART1_IRQHandler(void)
 {
     /* enter interrupt */
     rt_interrupt_enter();
@@ -390,7 +442,7 @@ void UART1_DMA_TX_IRQHandler(void)
 #endif /* BSP_USING_UART1 */
 
 #if defined(BSP_USING_UART2)
-void USART2_IRQHandler(void)
+void UART2_IRQHandler(void)
 {
     /* enter interrupt */
     rt_interrupt_enter();
@@ -539,7 +591,7 @@ void UART5_DMA_TX_IRQHandler(void)
 #endif /* BSP_USING_UART5*/
 
 #if defined(BSP_USING_UART6)
-void USART6_IRQHandler(void)
+void UART6_IRQHandler(void)
 {
     /* enter interrupt */
     rt_interrupt_enter();

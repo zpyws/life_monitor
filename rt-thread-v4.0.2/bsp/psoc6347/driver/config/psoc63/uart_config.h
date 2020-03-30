@@ -17,23 +17,45 @@
 extern "C" {
 #endif
 
+#if defined(BSP_USING_UART0)
+#ifndef UART0_CONFIG
+#define UART0_CONFIG                                                \
+    {                                                               \
+        .name = "uart0",                                            \
+        .uart_base = UART0_HW,                                      \
+        .uart_config = &UART0_config,                               \
+        .context = &UART0_context,                                  \
+        .irq_config = &UART0_SCB_IRQ_cfg,                           \
+        .isr_handler = UART0_IRQHandler,                            \
+    }
+#endif /* UART0_CONFIG */
+#endif /* BSP_USING_UART0 */
+
+#if defined(BSP_UART0_RX_USING_DMA)
+#ifndef UART0_DMA_RX_CONFIG
+#define UART0_DMA_RX_CONFIG                                         \
+    {                                                               \
+    }
+#endif /* UART0_DMA_RX_CONFIG */
+#endif /* BSP_UART0_RX_USING_DMA */
+
 #if defined(BSP_USING_UART1)
 #ifndef UART1_CONFIG
 #define UART1_CONFIG                                                \
     {                                                               \
         .name = "uart1",                                            \
-        .uart_base = UART3_HW,                                      \
-        .uart_config = &UART3_config,                               \
-        .context = &UART3_context,                                  \
-        .irq_config = &UART3_SCB_IRQ_cfg,                           \
-        .isr_handler = UART3_IRQHandler,                            \
+        .uart_base = UART1_HW,                                      \
+        .uart_config = &UART1_config,                               \
+        .context = &UART1_context,                                  \
+        .irq_config = &UART1_SCB_IRQ_cfg,                           \
+        .isr_handler = UART1_IRQHandler,                            \
     }
 #endif /* UART1_CONFIG */
 #endif /* BSP_USING_UART1 */
 
 #if defined(BSP_UART1_RX_USING_DMA)
 #ifndef UART1_DMA_RX_CONFIG
-#define UART1_DMA_RX_CONFIG                                            \
+#define UART1_DMA_RX_CONFIG                                         \
     {                                                               \
         .Instance = UART1_RX_DMA_INSTANCE,                          \
         .dma_rcc  = UART1_RX_DMA_RCC,                               \
@@ -145,7 +167,7 @@ extern "C" {
         .uart_config = &UART6_config,                               \
         .context = &UART6_context,                                  \
         .irq_config = &UART6_SCB_IRQ_cfg,                           \
-        .isr_handler = USART6_IRQHandler,                           \
+        .isr_handler = UART6_IRQHandler,                            \
     }
 #endif /* UART6_CONFIG */
 #endif /* BSP_USING_UART6 */
@@ -160,6 +182,50 @@ extern "C" {
     }
 #endif /* UART6_DMA_RX_CONFIG */
 #endif /* BSP_UART6_RX_USING_DMA */
+
+#if defined(BSP_USING_UART7)
+#ifndef UART7_CONFIG
+#define UART7_CONFIG                                                \
+    {                                                               \
+        .name = "uart7",                                            \
+        .uart_base = UART7_HW,                                      \
+        .uart_config = &UART7_config,                               \
+        .context = &UART7_context,                                  \
+        .irq_config = &UART7_SCB_IRQ_cfg,                           \
+        .isr_handler = UART7_IRQHandler,                            \
+    }
+#endif /* UART7_CONFIG */
+#endif /* BSP_USING_UART7 */
+    
+#if defined(BSP_UART7_RX_USING_DMA)
+#ifndef UART7_DMA_RX_CONFIG
+#define UART7_DMA_RX_CONFIG                                         \
+    {                                                               \
+    }
+#endif /* UART7_DMA_RX_CONFIG */
+#endif /* BSP_UART7_RX_USING_DMA */
+
+#if defined(BSP_USING_UART8)
+#ifndef UART8_CONFIG
+#define UART8_CONFIG                                                \
+    {                                                               \
+        .name = "uart8",                                            \
+        .uart_base = UART8_HW,                                      \
+        .uart_config = &UART8_config,                               \
+        .context = &UART8_context,                                  \
+        .irq_config = &UART8_SCB_IRQ_cfg,                           \
+        .isr_handler = UART8_IRQHandler,                            \
+    }
+#endif /* UART8_CONFIG */
+#endif /* BSP_USING_UART8 */
+    
+#if defined(BSP_UART8_RX_USING_DMA)
+#ifndef UART8_DMA_RX_CONFIG
+#define UART8_DMA_RX_CONFIG                                         \
+    {                                                               \
+    }
+#endif /* UART8_DMA_RX_CONFIG */
+#endif /* BSP_UART8_RX_USING_DMA */
 
 #ifdef __cplusplus
 }
