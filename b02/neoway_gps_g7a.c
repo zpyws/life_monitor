@@ -76,7 +76,9 @@ static void task_gps(void *parameter)
         
         rt_sem_take(&rx_sem, RT_WAITING_FOREVER);
         
-        rt_device_write(gps_uart_device, 0, gps_rx_buff, res);
+        gps_rx_buff[res] = 0;
+        rt_kprintf("%s", gps_rx_buff);
+        rt_memset(gps_rx_buff, 0, sizeof(gps_rx_buff));
     }
 }
 //********************************************************************************************************************************************
