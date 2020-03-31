@@ -3,6 +3,10 @@
 #include <rtdevice.h>
 
 #include "nmeaparser.h"
+
+#define LOG_TAG                 "GPS"
+#define LOG_LVL                 LOG_LVL_DBG
+#include <ulog.h>
 //********************************************************************************************************************************************
 #define GPS_UART                "uart1"
 #define GPS_RX_BUFF_SIZE        512
@@ -110,26 +114,26 @@ struct nmea_parser parser[1];
  * @navdata:    the navigation data
  */
 void display_navdata(struct nav_data *navdata) {
-    rt_kprintf("NAVDATA:\n");
-    rt_kprintf("NAVDATA.FIX_VALID = %d\n", navdata->is_fixed);
-    rt_kprintf("NAVDATA.DATE = %d-%02d-%02d\n", navdata->date.year, navdata->date.month, navdata->date.day);
-    rt_kprintf("NAVDATA.TIME= %02d:%02d:%02d.%03d\n", navdata->time.hour, navdata->time.minute, navdata->time.second, navdata->time.ms);
-    rt_kprintf("NAVDATA.LAT = %.6f\n", navdata->lat);
-    rt_kprintf("NAVDATA.LON = %.6f\n", navdata->lon);
-    rt_kprintf("NAVDATA.ALT = %.2f\n", navdata->alt);
-    rt_kprintf("NAVDATA.HEADING = %.2f\n", navdata->heading);
-    rt_kprintf("NAVDATA.SPEED = %.2f\n", navdata->speed);
-    rt_kprintf("NAVDATA.HDOP = %.1f\n", navdata->hdop);
-    rt_kprintf("NAVDATA.VDOP = %.1f\n", navdata->vdop);
-    rt_kprintf("NAVDATA.PDOP = %.1f\n", navdata->pdop);
-    rt_kprintf("NAVDATA.NUM_SV_FIX = %d\n", navdata->sv_inuse);
-    rt_kprintf("NAVDATA.NUM_SV_VIEW = %d\n", navdata->sv_inview);
+    LOG_D("NAVDATA:");
+    LOG_D("NAVDATA.FIX_VALID = %d", navdata->is_fixed);
+    LOG_D("NAVDATA.DATE = %d-%02d-%02d", navdata->date.year, navdata->date.month, navdata->date.day);
+    LOG_D("NAVDATA.TIME= %02d:%02d:%02d.%03d", navdata->time.hour, navdata->time.minute, navdata->time.second, navdata->time.ms);
+    LOG_D("NAVDATA.LAT = %.6f", navdata->lat);
+    LOG_D("NAVDATA.LON = %.6f", navdata->lon);
+    LOG_D("NAVDATA.ALT = %.2f", navdata->alt);
+    LOG_D("NAVDATA.HEADING = %.2f", navdata->heading);
+    LOG_D("NAVDATA.SPEED = %.2f", navdata->speed);
+    LOG_D("NAVDATA.HDOP = %.1f", navdata->hdop);
+    LOG_D("NAVDATA.VDOP = %.1f", navdata->vdop);
+    LOG_D("NAVDATA.PDOP = %.1f", navdata->pdop);
+    LOG_D("NAVDATA.NUM_SV_FIX = %d", navdata->sv_inuse);
+    LOG_D("NAVDATA.NUM_SV_VIEW = %d", navdata->sv_inview);
 
     int svid;
     for (svid = 0; svid < MAX_SVID; svid++) { 
             struct sate *sate = navdata->sates + svid;
             if (sate->valid)
-                    rt_kprintf("NAVDATA.SATE[%02d]: constell=%s prn=%02d, cn0=%02d, azim=%03d, elev=%02d, use=%d\n", 
+                    LOG_D("NAVDATA.SATE[%02d]: constell=%s prn=%02d, cn0=%02d, azim=%03d, elev=%02d, use=%d", 
                                     svid, constell_name(sate->constell), sate->prn, sate->cn0, sate->azim, sate->elev, sate->in_use);
     } 
 
