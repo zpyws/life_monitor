@@ -213,6 +213,9 @@ static rt_err_t cy8c63_control(struct rt_serial_device *serial, int cmd, void *a
         stm32_dma_config(serial, ctrl_arg);
         break;
 #endif
+
+    case RT_DEVICE_CTRL_CONFIG:
+        break;
     }
     return RT_EOK;
 }
