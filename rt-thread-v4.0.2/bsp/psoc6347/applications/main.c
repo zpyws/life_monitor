@@ -13,12 +13,14 @@
 #include <board.h>
 
 extern void gps_startup(void);
+extern void bms_startup(void);
 
 int main(void)
 {
     int count = 1;
 
     gps_startup();
+    bms_startup();
     while (count++)
     {
         rt_thread_mdelay(500);
