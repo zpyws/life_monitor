@@ -41,7 +41,7 @@
 #endif
 #include <rtdbg.h>
 
-#define I2CM_TIMEOUT                    0
+#define I2CM_TIMEOUT                    100
 
 //by yangwensen@20200320
 enum

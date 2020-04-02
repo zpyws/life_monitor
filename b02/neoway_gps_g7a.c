@@ -137,7 +137,7 @@ void display_navdata(struct nav_data *navdata) {
                                     svid, constell_name(sate->constell), sate->prn, sate->cn0, sate->azim, sate->elev, sate->in_use);
     } 
 
-    rt_kprintf("\n");
+    LOG_D("\n");
 }
 //********************************************************************************************************************************************
 //by yangwensen@20200331
