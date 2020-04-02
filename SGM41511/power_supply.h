@@ -317,7 +317,10 @@ struct power_supply_desc {
 };
 
 struct power_supply {
-	const struct power_supply_desc *desc;
+	const char *name;
+	enum power_supply_type type;
+	enum power_supply_property *properties;
+	size_t num_properties;
 
 	char **supplied_to;
 	size_t num_supplicants;
@@ -326,17 +329,31 @@ struct power_supply {
 	size_t num_supplies;
 	struct device_node *of_node;
 
-	/* Driver private data */
-	void *drv_data;
+	int (*get_property)(struct power_supply *psy,
+			    enum power_supply_property psp,
+			    union power_supply_propval *val);
+	int (*set_property)(struct power_supply *psy,
+			    enum power_supply_property psp,
+			    const union power_supply_propval *val);
+	int (*property_is_writeable)(struct power_supply *psy,
+				     enum power_supply_property psp);
+	void (*external_power_changed)(struct power_supply *psy);
+	void (*set_charged)(struct power_supply *psy);
+
+	/*
+	 * Set if thermal zone should not be created for this power supply.
+	 * For example for virtual supplies forwarding calls to actual
+	 * sensors or other supplies.
+	 */
+//	bool no_thermal;
+	/* For APM emulation, think legacy userspace. */
+	int use_for_apm;
 
 	/* private */
-//	struct device dev;
+//	struct device *dev;
 //	struct work_struct changed_work;
-//	struct delayed_work deferred_register_work;
 //	spinlock_t changed_lock;
-//	bool changed;
-//	bool initialized;
-//	atomic_t use_cnt;
+	int8_t changed;
 #ifdef CONFIG_THERMAL
 	struct thermal_zone_device *tzd;
 	struct thermal_cooling_device *tcd;
@@ -355,7 +372,6 @@ struct power_supply {
 	char *charging_blink_full_solid_trig_name;
 #endif
 };
-
 /*
  * This is recommended structure to specify static power supply parameters.
  * Generic one, parametrizable for different power supplies. Power supply
