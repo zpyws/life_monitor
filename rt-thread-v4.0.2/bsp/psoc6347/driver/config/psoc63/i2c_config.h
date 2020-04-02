@@ -22,16 +22,34 @@ extern "C" {
 #endif
 
 #if defined(BSP_I2C1_USING_DMA)
-#ifndef UART1_DMA_RX_CONFIG
-#define UART1_DMA_RX_CONFIG                                         \
+#ifndef I2C1_DMA_RX_CONFIG
+#define I2C1_DMA_RX_CONFIG                                         \
     {                                                               \
-        .Instance = UART1_RX_DMA_INSTANCE,                          \
-        .dma_rcc  = UART1_RX_DMA_RCC,                               \
-        .dma_irq  = UART1_RX_DMA_IRQ,                               \
     }
 #endif
 #endif 
 
+
+#if defined(BSP_USING_I2C2)
+#ifndef I2C2_CONFIG
+#define I2C2_CONFIG                                                 \
+    {                                                               \
+        .name = "i2c2",                                             \
+        .i2c_base = I2C2_HW, 				                        \
+        .irq_config = &I2C2_SCB_IRQ_cfg,    				        \
+        .context = &I2C2_context,    	            				\
+		.i2c_init = I2C2_Start,										\
+    }
+#endif 
+#endif
+
+#if defined(BSP_I2C2_USING_DMA)
+#ifndef I2C2_DMA_RX_CONFIG
+#define I2C2_DMA_RX_CONFIG                                          \
+    {                                                               \
+    }
+#endif
+#endif 
 
 #ifdef __cplusplus
 }
