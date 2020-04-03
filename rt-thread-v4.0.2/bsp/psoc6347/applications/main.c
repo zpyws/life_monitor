@@ -14,6 +14,7 @@
 
 extern void gps_startup(void);
 extern void bms_startup(void);
+extern void lora_startup(void);
 
 int main(void)
 {
@@ -21,6 +22,7 @@ int main(void)
 
     gps_startup();
     bms_startup();
+    lora_startup();
     while (count++)
     {
         rt_thread_mdelay(500);
