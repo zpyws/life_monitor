@@ -23,15 +23,16 @@
   *        PA1  ---> RST 
 *******************************************************************************/
 
-#include "stm32l4xx_hal.h"
+#include <rtthread.h>
+#include <board.h>
 #include "M90_M91_HAL.h"
 
 
 LoRaNode_USART_RECEIVETYPE LoRaNode_UART;
-UART_HandleTypeDef hlpuart1;                   
-TIM_HandleTypeDef TIM3_UARTHandler;      
+//UART_HandleTypeDef hlpuart1;                   
+//TIM_HandleTypeDef TIM3_UARTHandler;      
 
-LPTIM_HandleTypeDef hlptim1;
+//LPTIM_HandleTypeDef hlptim1;
 
 LPTIM1_FlagTypeDef LPTIM1_Flag;
 uint8_t LoRaNode_ReadTimeout_flag = 0,LoRaNode_BUSYTimeout_flag = 0,LoRaNode_LPsend_flag = 0;
@@ -41,7 +42,8 @@ uint8_t aRxBuffer[1];
 
 uint8_t Send_Sate_Sign;
 
-
+extern int lora_read(uint8_t *buff, uint32_t len);
+extern int lora_write(uint8_t *buff, uint32_t len);
 
 //-----------------------------UART-----------------------------//
 //该部分函数为MCU对LoRaWAN节点模块的串口通信部分内容，包含串口初始化
@@ -55,18 +57,6 @@ uint8_t Send_Sate_Sign;
   */
 void TIM3_UART_Init_ms(uint16_t arr)
 {   
-    TIM3_UARTHandler.Instance=TIM3;                          
-    TIM3_UARTHandler.Init.Prescaler=64000-1;                     
-    TIM3_UARTHandler.Init.CounterMode=TIM_COUNTERMODE_UP;   
-    TIM3_UARTHandler.Init.Period=arr;                        //自动装载值
-    TIM3_UARTHandler.Init.ClockDivision=TIM_CLOCKDIVISION_DIV1;
-    
-    __HAL_RCC_TIM3_CLK_ENABLE();            
-    HAL_NVIC_SetPriority(TIM3_IRQn,1,3);    
-    HAL_NVIC_EnableIRQ(TIM3_IRQn);           
-    
-    HAL_TIM_Base_Init(&TIM3_UARTHandler);
-    HAL_TIM_Base_Stop_IT(&TIM3_UARTHandler); 
 }
 
 /**
@@ -74,14 +64,14 @@ void TIM3_UART_Init_ms(uint16_t arr)
   * @参数： htim为串口配置  
   * @返回值：无
   */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+void HAL_TIM_PeriodElapsedCallback(void)
 {
-    if(htim==(&TIM3_UARTHandler))
+//    if(htim==(&TIM3_UARTHandler))
     {
         LoRaNode_UART.receive_flag = 1;
-        HAL_TIM_Base_Stop_IT(&TIM3_UARTHandler);       
+//        HAL_TIM_Base_Stop_IT(&TIM3_UARTHandler);       
     }
-    else
+//    else
     {
     }
 }
@@ -93,40 +83,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   */
 void LoRaNode_UART_Init(void)                                               
 {
-    GPIO_InitTypeDef GPIO_InitStruct;
-    
-    __HAL_RCC_GPIOC_CLK_ENABLE();	
-    __HAL_RCC_LPUART1_CLK_ENABLE();
-    
-    GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF8_LPUART1;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-    
-    hlpuart1.Instance = LPUART1;
-    hlpuart1.Init.BaudRate = 9600;
-    hlpuart1.Init.WordLength = UART_WORDLENGTH_8B;
-    hlpuart1.Init.StopBits = UART_STOPBITS_1;
-    hlpuart1.Init.Parity = UART_PARITY_NONE;
-    hlpuart1.Init.Mode = UART_MODE_TX_RX;
-    hlpuart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-    hlpuart1.Init.OverSampling = UART_OVERSAMPLING_16;
-    hlpuart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-    
-    if (HAL_UART_Init(&hlpuart1) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    
-    HAL_NVIC_SetPriority(LPUART1_IRQn, 3, 0);
-    HAL_NVIC_EnableIRQ(LPUART1_IRQn);
-    __HAL_UART_ENABLE_IT(&hlpuart1, UART_IT_RXNE);                
-    __HAL_UART_CLEAR_FLAG(&hlpuart1,UART_IT_RXNE);               
-    HAL_UART_Receive_IT(&hlpuart1,aRxBuffer,1);
-    
-    TIM3_UART_Init_ms(10);    
 }
 
 /**
@@ -134,13 +90,13 @@ void LoRaNode_UART_Init(void)
   * @参数： huart为串口配置参数  
   * @返回值：无
   */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+void HAL_UART_RxCpltCallback(void)
 { 
     LoRaNode_UART.RX_Buf[LoRaNode_UART.rx_len] = aRxBuffer[0];
     LoRaNode_UART.rx_len++;
-    HAL_UART_Receive_IT(&hlpuart1,aRxBuffer,1);
-    __HAL_TIM_SET_COUNTER(&TIM3_UARTHandler,0);
-    HAL_TIM_Base_Start_IT (&TIM3_UARTHandler);
+//    HAL_UART_Receive_IT(&hlpuart1,aRxBuffer,1);
+//    __HAL_TIM_SET_COUNTER(&TIM3_UARTHandler,0);
+//    HAL_TIM_Base_Start_IT (&TIM3_UARTHandler);
 }
 
 /**
@@ -152,8 +108,7 @@ void LoRaNode_UART_Send_String(uint8_t *str)
 {
     while((*str)!=0)
     {
-        while((LPUART1->ISR&UART_FLAG_TXE)!=UART_FLAG_TXE);//等待发送寄存器为空
-        LPUART1->TDR = *str++;       
+        lora_write(str++, 1);
     }
 }
 
@@ -164,8 +119,7 @@ void LoRaNode_UART_Send_String(uint8_t *str)
   */
 void LoRaNode_UART_Send_Byte(uint8_t data)
 {
-    while((LPUART1->ISR&UART_FLAG_TXE)!=UART_FLAG_TXE);//等待发送寄存器为空
-    LPUART1->TDR = data;
+    lora_write(&data, 1);
 }
 
 //-----------------------------LPTIM1-----------------------------//
@@ -180,19 +134,6 @@ void LoRaNode_UART_Send_Byte(uint8_t data)
   */
 void LPTIM1_Init(void)
 {
-    hlptim1.Instance = LPTIM1;
-    hlptim1.Init.Clock.Source = LPTIM_CLOCKSOURCE_APBCLOCK_LPOSC;
-    hlptim1.Init.Clock.Prescaler = LPTIM_PRESCALER_DIV64;
-    hlptim1.Init.Trigger.Source = LPTIM_TRIGSOURCE_SOFTWARE;
-    hlptim1.Init.OutputPolarity = LPTIM_OUTPUTPOLARITY_HIGH;
-    hlptim1.Init.UpdateMode = LPTIM_UPDATE_ENDOFPERIOD;
-    hlptim1.Init.CounterSource = LPTIM_COUNTERSOURCE_INTERNAL;
-    hlptim1.Init.Input1Source = LPTIM_INPUT1SOURCE_COMP1;
-    hlptim1.Init.Input2Source = LPTIM_INPUT2SOURCE_COMP2;
-    if (HAL_LPTIM_Init(&hlptim1) != HAL_OK)
-    {
-        Error_Handler();
-    }      
     LoRaNode_ReadTimeout_flag = 0;
     LoRaNode_BUSYTimeout_flag = 0;
     LoRaNode_LPsend_flag = 0;
@@ -207,16 +148,16 @@ void LPTIM1_SingleStart_s(uint16_t arr,LPTIM1_FlagTypeDef LPTIM_Flag)
 {
     LPTIM1_Flag = LPTIM_Flag;
     arr = arr*500;//32000/64分频
-    HAL_LPTIM_SetOnce_Start_IT(&hlptim1,0,arr);
+//    HAL_LPTIM_SetOnce_Start_IT(&hlptim1,0,arr);
 }
 /**
   * @简介：该函数为低功耗定时器中断回调函数。              
   * @参数： hlptim为低功耗定时器配置 
   * @返回值：无
   */
-void HAL_LPTIM_CompareMatchCallback(LPTIM_HandleTypeDef *hlptim)// case
+void HAL_LPTIM_CompareMatchCallback(void)// case
 {
-    HAL_LPTIM_SetOnce_Stop_IT(&hlptim1);
+//    HAL_LPTIM_SetOnce_Stop_IT(&hlptim1);
     switch(LPTIM1_Flag)
     {
     case LoRaNode_ReadTimeout:
@@ -238,56 +179,40 @@ void HAL_LPTIM_CompareMatchCallback(LPTIM_HandleTypeDef *hlptim)// case
   * @参数： hlptim为低功耗定时器配置 
   * @返回值：无
   */
-void HAL_LPTIM_MspInit(LPTIM_HandleTypeDef* hlptim)
+void HAL_LPTIM_MspInit(void)
 {
-    
-    if(hlptim->Instance==LPTIM1)
-    {
-
-        __HAL_RCC_LPTIM1_CLK_ENABLE();       
-        HAL_NVIC_SetPriority(LPTIM1_IRQn, 1, 0);
-        HAL_NVIC_EnableIRQ(LPTIM1_IRQn);
-    }
-    
 }
 
 //-----------------------------GPIO-----------------------------//
 //该部分函数为系统用到的GPIO的初始化函数，用户根据自己的平台相应修改
 //--------------------------------------------------------------//
+//by yangwensen@20200403
 void LoRaNode_GPIO_Init(void)
 {
-    GPIO_InitTypeDef GPIO_InitStruct;
-	
     /* GPIO Ports Clock Enable */
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-    __HAL_RCC_GPIOA_CLK_ENABLE();
     
     /*Configure GPIO pins : PC3  fro WAKE in LoRaNode */
-    GPIO_InitStruct.Pin = GPIO_PIN_3;                                           
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    rt_pin_mode(LoRaNode_WAKE_PIN, PIN_MODE_OUTPUT);
+    rt_pin_write(LoRaNode_WAKE_PIN, PIN_HIGH);
     
     /*Configure GPIO pins : PC4  fro STAT in LoRaNode ,PC5  fro BUSY in LoRaNode*/
-    GPIO_InitStruct.Pin = GPIO_PIN_4 | GPIO_PIN_5;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    rt_pin_mode(LoRaNode_STAT_PIN, PIN_MODE_INPUT);
     
+    rt_pin_mode(LoRaNode_BUSY_PIN, PIN_MODE_INPUT);
+
     /*Configure GPIO pins : PA0  fro MODE in LoRaNode ,PA1 fro RST in LoRaNode*/    
-    GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);   
+    rt_pin_mode(LoRaNode_MODE_PIN, PIN_MODE_OUTPUT);
+    rt_pin_write(LoRaNode_MODE_PIN, PIN_HIGH);
+
+    rt_pin_mode(LoRaNode_NRST_PIN, PIN_MODE_OUTPUT);
+    rt_pin_write(LoRaNode_NRST_PIN, PIN_HIGH);
 }
 
 //----------------------------Delay-----------------------------//
+//by yangwensen@20200403
 void Delay_ms(uint32_t Delay)
 {
-    HAL_Delay(Delay);
+    rt_thread_mdelay(Delay);
 }
 
 

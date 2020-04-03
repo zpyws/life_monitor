@@ -14,21 +14,22 @@
 #include <stdint.h>
 
 /* LoRawan LoRaNode pin configuration */
-#define LoRaNode_WAKE_PIN					GPIO_PIN_3
-#define LoRaNode_WAKE_GPIO_PORT         	GPIOC
+#define LoRaNode_WAKE_PIN					GET_PIN(10, 2)
 
-#define LoRaNode_MODE_PIN					GPIO_PIN_0
-#define LoRaNode_MODE_GPIO_PORT         	GPIOA
+//#define LoRaNode_WAKE_GPIO_PORT         	GPIOC
 
-#define LoRaNode_NRST_PIN					GPIO_PIN_1
-#define LoRaNode_NRST_GPIO_PORT         	GPIOA
+#define LoRaNode_MODE_PIN					GET_PIN(10, 3)
+//#define LoRaNode_MODE_GPIO_PORT         	GPIOA
+
+#define LoRaNode_NRST_PIN					GET_PIN(10, 4)
+//#define LoRaNode_NRST_GPIO_PORT         	GPIOA
 
 /* INPUT */													
-#define LoRaNode_STAT_PIN					GPIO_PIN_4
-#define LoRaNode_STAT_GPIO_PORT         	GPIOC
+#define LoRaNode_STAT_PIN					GET_PIN(10, 5)
+//#define LoRaNode_STAT_GPIO_PORT         	GPIOC
 
-#define LoRaNode_BUSY_PIN					GPIO_PIN_5
-#define LoRaNode_BUSY_GPIO_PORT         	GPIOC
+#define LoRaNode_BUSY_PIN					GET_PIN(10, 6)
+//#define LoRaNode_BUSY_GPIO_PORT         	GPIOC
 
 #define RECEIVELEN 1024
 
@@ -48,10 +49,10 @@ typedef enum
 }LPTIM1_FlagTypeDef;
 
 extern LoRaNode_USART_RECEIVETYPE LoRaNode_UART;
-extern UART_HandleTypeDef hlpuart1;                    
-extern TIM_HandleTypeDef TIM3_UARTHandler;
+//extern UART_HandleTypeDef hlpuart1;                    
+//extern TIM_HandleTypeDef TIM3_UARTHandler;
 
-extern LPTIM_HandleTypeDef hlptim1;
+//extern LPTIM_HandleTypeDef hlptim1;
 
 extern LPTIM1_FlagTypeDef LPTIM1_Flag;
 extern uint8_t LoRaNode_ReadTimeout_flag,LoRaNode_BUSYTimeout_flag,LoRaNode_LPsend_flag;
@@ -61,17 +62,17 @@ extern uint8_t Send_Sate_Sign;
 
 //-----------------------------UART-----------------------------//
 void TIM3_UART_Init_ms(uint16_t arr);
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
+//void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
 void LoRaNode_UART_Init(void);
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
+//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 void LoRaNode_UART_Send_String(uint8_t *str);
 void LoRaNode_UART_Send_Byte(uint8_t data);
 
 //----------------------------LPTIM1-----------------------------//
 void LPTIM1_Init(void);
 void LPTIM1_SingleStart_s(uint16_t arr,LPTIM1_FlagTypeDef LPTIM_Flag);
-void HAL_LPTIM_CompareMatchCallback(LPTIM_HandleTypeDef *hlptim);
-void HAL_LPTIM_MspInit(LPTIM_HandleTypeDef* hlptim);
+//void HAL_LPTIM_CompareMatchCallback(LPTIM_HandleTypeDef *hlptim);
+//void HAL_LPTIM_MspInit(LPTIM_HandleTypeDef* hlptim);
 
 //-----------------------------GPIO-----------------------------//
 void LoRaNode_GPIO_Init(void);

@@ -1,8 +1,8 @@
 #ifndef __M90_M91_CONT_H
 #define __M90_M91_CONT_H
 
-#include "stm32l4xx_hal.h"
 #include "M90_M91_HAL.h"
+#include <rtthread.h>
 
 #define Up_FreqSign        1
 #define Down_FreqSign      3
@@ -87,19 +87,19 @@ typedef struct {
     
 }Status_Info;
 
+//by yangwensen@20200403
+#define LoRaNode_WAKE_HIGH()    rt_pin_write(LoRaNode_WAKE_PIN, PIN_HIGH)
+#define LoRaNode_WAKE_LOW()     rt_pin_write(LoRaNode_WAKE_PIN, PIN_LOW)													
 
-#define LoRaNode_WAKE_HIGH()      HAL_GPIO_WritePin(LoRaNode_WAKE_GPIO_PORT, LoRaNode_WAKE_PIN, GPIO_PIN_SET)
-#define LoRaNode_WAKE_LOW()     HAL_GPIO_WritePin(LoRaNode_WAKE_GPIO_PORT, LoRaNode_WAKE_PIN, GPIO_PIN_RESET)													
+#define LoRaNode_MODE_HIGH()    rt_pin_write(LoRaNode_MODE_PIN, PIN_HIGH)
+#define LoRaNode_MODE_LOW()     rt_pin_write(LoRaNode_MODE_PIN, PIN_LOW)
 
-#define LoRaNode_MODE_HIGH()      HAL_GPIO_WritePin(LoRaNode_MODE_GPIO_PORT, LoRaNode_MODE_PIN, GPIO_PIN_SET)
-#define LoRaNode_MODE_LOW()     HAL_GPIO_WritePin(LoRaNode_MODE_GPIO_PORT, LoRaNode_MODE_PIN, GPIO_PIN_RESET) 
+#define LoRaNode_NRST_HIGH()    rt_pin_write(LoRaNode_NRST_PIN, PIN_HIGH)
+#define LoRaNode_NRST_LOW()     rt_pin_write(LoRaNode_NRST_PIN, PIN_LOW)
 
-#define LoRaNode_NRST_HIGH()      HAL_GPIO_WritePin(LoRaNode_NRST_GPIO_PORT, LoRaNode_NRST_PIN, GPIO_PIN_SET)
-#define LoRaNode_NRST_LOW()     HAL_GPIO_WritePin(LoRaNode_NRST_GPIO_PORT, LoRaNode_NRST_PIN, GPIO_PIN_RESET)
-
-#define LoRaNode_STAT_STATUS()	HAL_GPIO_ReadPin(LoRaNode_STAT_GPIO_PORT, LoRaNode_STAT_PIN)///
-#define LoRaNode_BUSY_STATUS()	HAL_GPIO_ReadPin(LoRaNode_BUSY_GPIO_PORT, LoRaNode_BUSY_PIN)
-#define LoRaNode_MODE_STATUS()	HAL_GPIO_ReadPin(LoRaNode_MODE_GPIO_PORT, LoRaNode_MODE_PIN)
+#define LoRaNode_STAT_STATUS()	rt_pin_read(LoRaNode_STAT_PIN)
+#define LoRaNode_BUSY_STATUS()	rt_pin_read(LoRaNode_BUSY_PIN)
+#define LoRaNode_MODE_STATUS()	rt_pin_read(LoRaNode_MODE_PIN)
 
 extern LoRaNode_Info LoRaNode;
 extern LoRaNode_Info *LoRaNode_str;

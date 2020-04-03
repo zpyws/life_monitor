@@ -11,6 +11,8 @@
   *实现且函数名等都没有改动，那本文件可以不用做更改直接使用，客户在应用层直接调
   *用本文件函数就可以实现各种操作。
 *******************************************************************************/
+#include <rtthread.h>
+#include <board.h>
 
 #include "M90_M91_Interface.h"
 #include <string.h>
@@ -28,6 +30,7 @@ Status_Info *LoRaNode_Status_str = &LoRaNode_Status;
 #define RXLEN    256
 uint8_t AT_Data_buf[RXLEN];
 
+extern int lora_read(uint8_t *buff, uint32_t len);
 //--------------------------------M90状态控制函数集-------------------------------//
 /**
   * @简介：该函数用于M90模块进行初始化。              
@@ -67,7 +70,7 @@ void LoRaNode_SetWake(LoRaNode_SleepMode_T Mode)
 {
     if (Mode == Mode_WakeUp)
     {
-        if(HAL_GPIO_ReadPin(LoRaNode_WAKE_GPIO_PORT,LoRaNode_WAKE_PIN) != GPIO_PIN_SET)
+        if( rt_pin_read(LoRaNode_WAKE_PIN) == PIN_LOW)
         {
             LoRaNode_WAKE_HIGH();            
             Delay_ms(100);                
@@ -76,7 +79,7 @@ void LoRaNode_SetWake(LoRaNode_SleepMode_T Mode)
     
     if (Mode == Mode_Sleep)
     {
-        if(HAL_GPIO_ReadPin(LoRaNode_WAKE_GPIO_PORT,LoRaNode_WAKE_PIN) != GPIO_PIN_RESET)
+        if( rt_pin_read(LoRaNode_WAKE_PIN) == PIN_HIGH)
         {
             LoRaNode_WAKE_LOW();
             Delay_ms(100);    
@@ -110,7 +113,7 @@ char *LoRaNode_GetVer(void)
     memset(AT_Data_buf,0,RXLEN);              
     LoRaNode_Send_AT(ASK_Ver);    
     Delay_ms(50); 
-    LoRaNode_Read(AT_Data_buf);        
+    lora_read(AT_Data_buf, sizeof(AT_Data_buf));        
     if(StringStr((char *)AT_Data_buf, temp) != NULL)
     {
         M91_Vel = StringStr((char *)AT_Data_buf, temp);
@@ -139,7 +142,7 @@ void LoRaNode_Getpoint(uint8_t *AT_Command,uint8_t *AT_Value)
     
     memset(AT_Data_buf,0,RXLEN);               
     LoRaNode_Send_AT(Command);    
-    LoRaNode_Read(AT_Data_buf);
+    lora_read(AT_Data_buf, sizeof(AT_Data_buf));
     strncpy((char*)Check,(const char*)AT_Command+2,stringlen-5);
     if((ptr = StringStr((char *)AT_Data_buf, (char*)Check)) != NULL)
     {
@@ -200,7 +203,7 @@ void LoRaNode_GetState(Status_Info *LoRa_temp)
     
     memset(AT_Data_buf,0,RXLEN);            
     LoRaNode_Send_AT(GetSTATUS);       
-    LoRaNode_Read(AT_Data_buf);        
+    lora_read(AT_Data_buf, sizeof(AT_Data_buf));
     if((ptr = StringStr((char *)AT_Data_buf, temp)) != NULL)
     {
         dec =StrToHex( *(ptr + 9));
@@ -293,21 +296,21 @@ void LoRaNode_GetState(Status_Info *LoRa_temp)
   */
 int LoRaNode_SetGPIO(uint32_t pin, uint32_t state)
 {    
-    uint8_t GPIO[20] = "AT+GPIO=";
+    uint8_t gpio[20] = "AT+GPIO=";
     uint8_t buf[5] = {0};
     char *temp = "OK";
-    char *ptr = (char*)GPIO;
+    char *ptr = (char*)gpio;
     
     IntToStr(buf, pin);
-    strcat((char *)GPIO, (char *)buf);    
+    strcat((char *)gpio, (char *)buf);    
     while(*++ptr);    
     *ptr++ = ',';    
     memset(buf,0,5);
     IntToStr(buf, state);
-    StringConcat(GPIO, buf);    
+    StringConcat(gpio, buf);    
     memset(AT_Data_buf,0,RXLEN);           
-    LoRaNode_Send_AT(GPIO);    
-    LoRaNode_Read(AT_Data_buf);                
+    LoRaNode_Send_AT(gpio);    
+    lora_read(AT_Data_buf, sizeof(AT_Data_buf));
     if((ptr = StringStr((char *)AT_Data_buf, temp)) != NULL)
     {
         return 0;
@@ -331,7 +334,7 @@ int LoRaNode_Setinteger(uint8_t *AT_Command,uint32_t AT_Value)
     memset(AT_Data_buf,0,RXLEN);               
     LoRaNode_Send_AT(Command);    
     Delay_ms(50);   
-    LoRaNode_Read(AT_Data_buf);                
+    lora_read(AT_Data_buf, sizeof(AT_Data_buf));
     if(StringStr((char *)AT_Data_buf, temp) != NULL)
     {
         return 0;
@@ -353,8 +356,8 @@ int LoRaNode_Setpoint(uint8_t *AT_Command,uint8_t *AT_Key)
     StringConcat(Command, AT_Key);    
     memset(AT_Data_buf,0,RXLEN);               
     LoRaNode_Send_AT(Command);
-    Delay_ms(100);     
-    LoRaNode_Read(AT_Data_buf);                    
+    Delay_ms(100);    
+    lora_read(AT_Data_buf, sizeof(AT_Data_buf));
     if(StringStr((char *)AT_Data_buf, temp) != NULL)
     {
         return 0;
@@ -372,10 +375,10 @@ int LoRaNode_SetFreq(uint8_t Up_Dn,uint8_t Ch_Cnt,uint32_t Start_Freq)
     uint8_t FREQ[30];
     char *temp = "OK";
     
-    sprintf(FREQ,"AT+FREQ=%d,%d,%d\r\n\0",Up_Dn,Ch_Cnt,Start_Freq);    
+    rt_sprintf((char *)FREQ,"AT+FREQ=%d,%d,%d\r\n\0",Up_Dn,Ch_Cnt,Start_Freq);    
     memset(AT_Data_buf,0,RXLEN);               
     LoRaNode_Send_AT(FREQ);    
-    LoRaNode_Read(AT_Data_buf);                    
+    lora_read(AT_Data_buf, sizeof(AT_Data_buf));
     if(StringStr((char *)AT_Data_buf, temp) != NULL)
     {
         return 0;
@@ -443,7 +446,7 @@ int LoRaNode_SetP2P(uint32_t f,uint8_t a,uint8_t b,uint8_t c,uint8_t d,uint8_t e
     
     LoRaNode_Send_AT(SetDebug);
     Delay_ms(50);
-    LoRaNode_Read(AT_Data_buf);                
+    lora_read(AT_Data_buf, sizeof(AT_Data_buf));
     
     if(StringStr((char *)AT_Data_buf, temp) != NULL)
     {
@@ -484,6 +487,7 @@ void LoRaNode_Send_AT(uint8_t *at_buf)
   * @参数： str 发回的数据  
   * @返回值：无
   */
+#if 0
 void LoRaNode_Read(uint8_t *str)
 {
     uint32_t i = 0;
@@ -491,7 +495,7 @@ void LoRaNode_Read(uint8_t *str)
     while((LoRaNode_UART.receive_flag != 1)&&(LoRaNode_ReadTimeout_flag != 1))
     {        
     }
-    HAL_LPTIM_SetOnce_Stop_IT(&hlptim1);
+//    HAL_LPTIM_SetOnce_Stop_IT(&hlptim1);
     LoRaNode_UART.receive_flag = 0;
     LoRaNode_ReadTimeout_flag = 0;
     
@@ -501,7 +505,7 @@ void LoRaNode_Read(uint8_t *str)
     }    
     LoRaNode_UART.rx_len = 0;
 }
-
+#endif
 //--------------------------------公共函数集-------------------------------//
 /**
   * @简介：判断一个字符串中是否包含另一个字符串。              

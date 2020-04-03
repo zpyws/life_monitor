@@ -5,10 +5,10 @@
 #include "nmeaparser.h"
 
 #define LOG_TAG                 "GPS"
-#define LOG_LVL                 LOG_LVL_DBG
+#define LOG_LVL                 LOG_LVL_INFO
 #include <ulog.h>
 //********************************************************************************************************************************************
-#define GPS_UART                "uart1"
+#define GPS_UART                "uart6"
 #define GPS_RX_BUFF_SIZE        512
 
 #define GPS_PRINT_RAW_DATA      0
