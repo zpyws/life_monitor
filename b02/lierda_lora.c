@@ -12,10 +12,12 @@
 #define LORA_UART_RX_BUFF_SIZE          300
 
 #define LORA_PRINT_RAW_DATA             1
+
+#define LORA_JOIN_TIMEOUT               15//00
 //********************************************************************************************************************************************
 rt_device_t lora_uart_device = RT_NULL;
 static struct rt_semaphore rx_sem;
-static uint8_t lora_rx_buff[LORA_UART_RX_BUFF_SIZE];
+//static uint8_t lora_rx_buff[LORA_UART_RX_BUFF_SIZE];
 int LoRaWAN_Node_Send(uint8_t *buf, uint8_t confirm);
 //********************************************************************************************************************************************
 int LoRaWAN_Node_SetParameter(void);
@@ -82,7 +84,6 @@ static int lora_uart_init(void)
 //by yangwensen@20200403
 static void task_lora(void *parameter)
 {
-    rt_size_t res;
 	int state = 0;
 	uint8_t SS_Data[5]={0};
     
@@ -91,9 +92,10 @@ static void task_lora(void *parameter)
     
 	state = LoRaWAN_Node_SetParameter();
 	if(state < 0)
-		LOG_E("参数设置错误\n");
+		LOG_E("参数设置错误[%d]\n", state);
 	else
 		LOG_I("参数设置成功\n");
+
 	// 模块入网
 	LoRaWAN_Join();
     
@@ -121,15 +123,11 @@ static void task_lora(void *parameter)
 		state = LoRaWAN_Node_Send(SS_Data, 1);
 		if(state == 0)
         {
-			rt_kprintf("数据上行成功, 上行数据:");
-			for(int i = 0; i<5; i++)
-            {
-				rt_kprintf("%02x ", SS_Data[i]);
-			}
-			rt_kprintf("\n");
+			LOG_I("数据上行成功, 上行数据:");
+            ulog_hexdump("[LoRaTx]", 16, SS_Data, sizeof(SS_Data));
         }
 		else
-			rt_kprintf("数据上行错误,错误代码:%d\n", state);
+			LOG_E("数据上行错误,错误代码:%d\n", state);
         
         rt_thread_mdelay(5000);
     }
@@ -157,6 +155,7 @@ extern int lora_read(uint8_t *buff, uint32_t len)
     rt_sem_take(&rx_sem, RT_WAITING_FOREVER);
     return res;
 }
+
 //by yangwensen@20200403
 extern int lora_write(uint8_t *buff, uint32_t len)
 {
@@ -192,8 +191,8 @@ int LoRaWAN_Node_SetParameter(void)
 	result += LoRaNode_Setinteger("AT+OTAA=",NET_OTAA);
 	
 	// 修改一下为自身应用的APPEUI
-  result += LoRaNode_Setpoint("AT+APPEUI=","E5280479BFF6E0BC");    
-  Delay_ms(30);    
+    result += LoRaNode_Setpoint("AT+APPEUI=","E5280479BFF6E0BC");    
+    Delay_ms(30);    
 	// 修改一下为自身应用的APPKEY
 	result += LoRaNode_Setpoint("AT+APPKEY=","39CB081BDD61D05281A444678033EE65");    
 	Delay_ms(30);
@@ -207,24 +206,37 @@ int LoRaWAN_Node_SetParameter(void)
 //********************************************************************************************************************************************
 void LoRaWAN_Join(void)
 {
+    uint32_t i;
+    
 	// 重启模块
 	LoRaNode_Reset();
 	Delay_ms(500); 
+    
 	// 进入透传模式
 	LoRaNode_SetMode(Mode_Transparent);
+    
 	rt_kprintf("正在join...");
 	// 判断入网标志
-	while((LoRaNode_STAT_STATUS() != 1)||(LoRaNode_BUSY_STATUS() != 1))
-	{
-			rt_kprintf(".");
-//			LED3_ON;
-			Delay_ms(500);
-//			LED3_OFF;
-			Delay_ms(500);
-	}
-//	LED3_ON;
-	rt_kprintf("\n");
-	rt_kprintf("入网成功\n");
+    for(i=0; i<LORA_JOIN_TIMEOUT; i++)
+    {
+        if((LoRaNode_STAT_STATUS()==PIN_HIGH) && (LoRaNode_BUSY_STATUS()==PIN_HIGH))
+            break;
+        
+		rt_kprintf(".");
+//		LED3_ON;
+		Delay_ms(500);
+//  	LED3_OFF;
+		Delay_ms(500);
+    }
+    if(i<LORA_JOIN_TIMEOUT)
+    {
+    //	LED3_ON;
+    	LOG_I("\n入网成功[%dS]\n", i);
+    }
+    else
+    {
+    	LOG_E("\n入网失败[%dS]\n", LORA_JOIN_TIMEOUT);
+    }
 }
 //********************************************************************************************************************************************
 int LoRaWAN_Node_Send(uint8_t *buf, uint8_t confirm)
@@ -240,33 +252,39 @@ int LoRaWAN_Node_Send(uint8_t *buf, uint8_t confirm)
 	// 等待模块空闲
 	while(LoRaNode_BUSY_STATUS() == PIN_LOW)
 	{
-			if(Time_Out_Break(20000, &TimeOut_Sign) == 1)
-			{
-					return -1;
-			}
+		if(Time_Out_Break(20000, &TimeOut_Sign) == 1)
+		{
+			return -1;
+		}
+        rt_thread_mdelay(10);
 	}
 	
+    LOG_D("lora idle");
 	LoRaNode_Send_AT(buf);
 
 	//----等待 BUSY 引脚处于忙状态(低电平)，等待时可以加超时判断
 	TimeOut_Sign = 0;
 	while(LoRaNode_BUSY_STATUS() == PIN_HIGH)
 	{
-			if(Time_Out_Break(2000, &TimeOut_Sign) == 1)
-			{
-					return -2;  // 错误 -2  : 模块没有接收到串口发送的数据，或者模块没有工作
-			}
+		if(Time_Out_Break(2000, &TimeOut_Sign) == 1)
+		{
+			return -2;  // 错误 -2  : 模块没有接收到串口发送的数据，或者模块没有工作
+		}
+        rt_thread_mdelay(10);
 	}
+    LOG_D("lora send data");
 
 	//----等待数据发送完成  BUSY 引脚回到空闲状态(高电平)，等待时可以加超时判断
 	TimeOut_Sign = 0;
 	while(LoRaNode_BUSY_STATUS() == PIN_LOW)
 	{
-			if(Time_Out_Break(60000, &TimeOut_Sign) == 1)
-			{
-					return -3; // 错误 -3  : 模块工作异常
-			}
+		if(Time_Out_Break(60000, &TimeOut_Sign) == 1)
+		{
+			return -3; // 错误 -3  : 模块工作异常
+		}
+        rt_thread_mdelay(10);
 	}
+    LOG_D("lora data sent");
 	
 	if(confirm == 1)
 	{
@@ -310,7 +328,7 @@ static uint8_t Time_Out_Break(uint32_t MAX_time , uint8_t *Sign)
 		{
 			return 1;
 		}else{
-		return 0;
+    		return 0;
 		}
 	}
 	return 0;
