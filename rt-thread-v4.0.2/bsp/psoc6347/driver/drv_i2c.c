@@ -41,7 +41,10 @@
 #endif
 #include <rtdbg.h>
 
-#define I2CM_TIMEOUT                    100
+#define I2CM_TIMEOUT            100
+
+#define FIRST_FRAME             0x01
+#define LAST_FRAME              0x03
 
 //by yangwensen@20200320
 enum
@@ -92,7 +95,7 @@ struct cy8c_i2c_bus
 };
 
 //by yangwensen@20200321
-static int cy8c63_i2c_read(struct cy8c63_i2c *i2c, rt_uint16_t addr, rt_uint8_t* buff, rt_uint16_t len)
+static int cy8c63_i2c_read(struct cy8c63_i2c *i2c, uint8_t frame_type, rt_uint16_t addr, rt_uint8_t* buff, rt_uint16_t len)
 {
     cy_en_scb_i2c_status_t status;
     rt_uint16_t i;
@@ -105,11 +108,15 @@ static int cy8c63_i2c_read(struct cy8c63_i2c *i2c, rt_uint16_t addr, rt_uint8_t*
     while( Cy_SCB_I2C_IsBusBusy(i2c->config->i2c_base) );
 
     /* send a start condition to I2C bus */
-    status = Cy_SCB_I2C_MasterSendStart(i2c->config->i2c_base, addr, CY_SCB_I2C_READ_XFER, I2CM_TIMEOUT, i2c->config->context);
+    if(frame_type & FIRST_FRAME)
+        status = Cy_SCB_I2C_MasterSendStart(i2c->config->i2c_base, addr, CY_SCB_I2C_READ_XFER, I2CM_TIMEOUT, i2c->config->context);
+    else
+        status = Cy_SCB_I2C_MasterSendReStart(i2c->config->i2c_base, addr, CY_SCB_I2C_READ_XFER, I2CM_TIMEOUT, i2c->config->context);
+        
     if(status!=CY_SCB_I2C_SUCCESS)
     {
         result = -2;
-        LOG_E("[Y]send start condition & slave addr|RD error:%d", status&~(CY_SCB_ID | CY_PDL_STATUS_ERROR | CY_SCB_I2C_ID));
+        LOG_E("[Y]send start|restart condition & slave addr|RD error:%d", status&~(CY_SCB_ID | CY_PDL_STATUS_ERROR | CY_SCB_I2C_ID));
         goto I2C_READ_ERROR;
     }
 
@@ -134,6 +141,11 @@ static int cy8c63_i2c_read(struct cy8c63_i2c *i2c, rt_uint16_t addr, rt_uint8_t*
         goto I2C_READ_ERROR;
     }
     
+    if(frame_type & LAST_FRAME)  //generate stop condition
+        goto I2C_READ_ERROR;
+    else                        //no stop condition
+        return result;
+    
 I2C_READ_ERROR:
     status = Cy_SCB_I2C_MasterSendStop(i2c->config->i2c_base, I2CM_TIMEOUT, i2c->config->context);
     if(status!=CY_SCB_I2C_SUCCESS)
@@ -146,7 +158,7 @@ I2C_READ_ERROR:
 }
 
 //by yangwensen@20200321
-static int cy8c63_i2c_write(struct cy8c63_i2c *i2c, uint16_t addr, uint8_t* buff, uint16_t len)
+static int cy8c63_i2c_write(struct cy8c63_i2c *i2c, uint8_t frame_type, uint16_t addr, uint8_t* buff, uint16_t len)
 {
     cy_en_scb_i2c_status_t status;
     rt_uint16_t i;
@@ -159,7 +171,11 @@ static int cy8c63_i2c_write(struct cy8c63_i2c *i2c, uint16_t addr, uint8_t* buff
     while( Cy_SCB_I2C_IsBusBusy(i2c->config->i2c_base) );
 
     /* send a start condition to I2C bus */
-    status = Cy_SCB_I2C_MasterSendStart(i2c->config->i2c_base, addr, CY_SCB_I2C_WRITE_XFER, I2CM_TIMEOUT, i2c->config->context);
+    if(frame_type & FIRST_FRAME)
+        status = Cy_SCB_I2C_MasterSendStart(i2c->config->i2c_base, addr, CY_SCB_I2C_WRITE_XFER, I2CM_TIMEOUT, i2c->config->context);
+    else
+        status = Cy_SCB_I2C_MasterSendReStart(i2c->config->i2c_base, addr, CY_SCB_I2C_WRITE_XFER, I2CM_TIMEOUT, i2c->config->context);
+
     if(status!=CY_SCB_I2C_SUCCESS)
     {
         result = -2;
@@ -178,7 +194,12 @@ static int cy8c63_i2c_write(struct cy8c63_i2c *i2c, uint16_t addr, uint8_t* buff
         }
         buff++;
     }
-    
+
+    if(frame_type & LAST_FRAME)  //generate stop condition
+        goto I2C_WRITE_ERROR;
+    else                        //no stop condition
+        return result;
+
 I2C_WRITE_ERROR:
     status = Cy_SCB_I2C_MasterSendStop(i2c->config->i2c_base, I2CM_TIMEOUT, i2c->config->context);
     if(status!=CY_SCB_I2C_SUCCESS)
@@ -197,6 +218,7 @@ static rt_size_t cy8c63_i2c_mst_xfer(struct rt_i2c_bus_device *bus, struct rt_i2
     rt_uint32_t i;
     rt_err_t ret = RT_ERROR;
     int result;
+    uint8_t frame_type;
     
     struct cy8c63_i2c *i2c;
     i2c = rt_container_of(bus, struct cy8c63_i2c, i2c);
@@ -204,7 +226,16 @@ static rt_size_t cy8c63_i2c_mst_xfer(struct rt_i2c_bus_device *bus, struct rt_i2
     for (i = 0; i < num; i++)
     {
         msg = &msgs[i];
-
+        
+        if(num==1)
+            frame_type = FIRST_FRAME|LAST_FRAME;
+        else if(i==0)
+            frame_type = FIRST_FRAME;
+        else if(i==num-1)
+            frame_type = LAST_FRAME;
+        else
+            frame_type = 0;
+            
         if (msg->flags & RT_I2C_ADDR_10BIT)
         {
         }
@@ -214,7 +245,7 @@ static rt_size_t cy8c63_i2c_mst_xfer(struct rt_i2c_bus_device *bus, struct rt_i2
         
         if (msg->flags & RT_I2C_RD)
         {
-            result = cy8c63_i2c_read(i2c, msg->addr, msg->buf, msg->len);
+            result = cy8c63_i2c_read(i2c, frame_type, msg->addr, msg->buf, msg->len);
             if(result)
             {
                 LOG_E("i2c bus write failed,i2c bus stop[%d]!", result);
@@ -223,7 +254,7 @@ static rt_size_t cy8c63_i2c_mst_xfer(struct rt_i2c_bus_device *bus, struct rt_i2
         }
         else
         {
-            result = cy8c63_i2c_write(i2c, msg->addr, msg->buf, msg->len);
+            result = cy8c63_i2c_write(i2c, frame_type, msg->addr, msg->buf, msg->len);
             if (result)
             {
                 LOG_E("i2c bus write failed,i2c bus stop[%d]!", result);
