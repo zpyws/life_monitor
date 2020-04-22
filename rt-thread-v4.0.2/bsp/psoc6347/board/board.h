@@ -20,17 +20,16 @@
 extern "C" {
 #endif
 
-#define STM32_FLASH_START_ADRESS     ((uint32_t)0x08000000)
-#define STM32_FLASH_SIZE             (1024 * 1024)
-#define STM32_FLASH_END_ADDRESS      ((uint32_t)(STM32_FLASH_START_ADRESS + STM32_FLASH_SIZE))
+#define CY8C63_FLASH_START_ADRESS     ((uint32_t)0x10080000)
+#define CY8C63_FLASH_SIZE             (512 * 1024)
+#define CY8C63_FLASH_END_ADDRESS      ((uint32_t)(CY8C63_FLASH_START_ADRESS + CY8C63_FLASH_SIZE))
 
-#define CY8C63_SRAM_SIZE           (128)                                    //by yangwensen@20200311
+#define CY8C63_SRAM_SIZE           (288-2)                                  //by yangwensen@20200311
 #define CY8C63_SRAM_END            (0x08000000 + CY8C63_SRAM_SIZE * 1024)   //by yangwensen@20200311
 
 #if defined(__CC_ARM) || defined(__CLANG_ARM)
-extern int Image$$RW_IRAM1$$ZI$$Limit;
-//#define HEAP_BEGIN      (&Image$$RW_IRAM1$$ZI$$Limit)
-#define HEAP_BEGIN      (CY8C63_SRAM_END-64L*1024L)
+extern int Image$$ER_RAM_NOINIT_DATA$$ZI$$Limit;							//by yangwensen@20200422
+#define HEAP_BEGIN      (&Image$$ER_RAM_NOINIT_DATA$$ZI$$Limit)				//by yangwensen@20200422
 #elif __ICCARM__
 #pragma section="CSTACK"
 #define HEAP_BEGIN      (__segment_end("CSTACK"))
