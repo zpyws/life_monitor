@@ -168,7 +168,7 @@ static int cy8c63_i2c_write(struct cy8c63_i2c *i2c, uint8_t frame_type, uint16_t
         return -1;
     
     /* wait until I2C bus is idle */
-    while( Cy_SCB_I2C_IsBusBusy(i2c->config->i2c_base) );
+//    while( Cy_SCB_I2C_IsBusBusy(i2c->config->i2c_base) );
 
     /* send a start condition to I2C bus */
     if(frame_type & FIRST_FRAME)

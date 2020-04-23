@@ -297,6 +297,30 @@ menu "On-chip Peripheral Drivers"
 			config BSP_USING_I2C2
     			bool "Using I2C2"
     			default n
+
+			config BSP_USING_I2C3
+    			bool "Using I2C3"
+    			default n
+
+			config BSP_USING_I2C4
+    			bool "Using I2C4"
+    			default n
+
+			config BSP_USING_I2C5
+    			bool "Using I2C5"
+    			default n
+
+			config BSP_USING_I2C6
+    			bool "Using I2C6"
+    			default n
+
+			config BSP_USING_I2C7
+    			bool "Using I2C7"
+    			default n
+
+			config BSP_USING_I2C8
+    			bool "Using I2C8"
+    			default n
 		endif
 
     menuconfig BSP_USING_SOFT_I2C
