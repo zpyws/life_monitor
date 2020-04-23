@@ -4345,7 +4345,7 @@
 <name_val_pair name="fdb8e1ae-f83a-46cf-9446-1d703716f38a@Debug@CortexM0p@Linker@General@Custom Linker Script" v="" />
 <name_val_pair name="fdb8e1ae-f83a-46cf-9446-1d703716f38a@Debug@CortexM0p@Linker@General@Generate Debugging Information" v="True" />
 <name_val_pair name="fdb8e1ae-f83a-46cf-9446-1d703716f38a@Debug@CortexM0p@Linker@General@Use Default Libs" v="True" />
-<name_val_pair name="fdb8e1ae-f83a-46cf-9446-1d703716f38a@Debug@CortexM0p@Linker@Command Line@Command Line" v="" />
+<name_val_pair name="fdb8e1ae-f83a-46cf-9446-1d703716f38a@Debug@CortexM0p@Linker@Command Line@Command Line" v="--diag_suppress=L6314W,L6329W" />
 <name_val_pair name="fdb8e1ae-f83a-46cf-9446-1d703716f38a@Debug@CortexM0p@User Commands@General@Pre Build Commands" v="" />
 <name_val_pair name="fdb8e1ae-f83a-46cf-9446-1d703716f38a@Debug@CortexM0p@User Commands@General@Post Build Commands" v="" />
 <name_val_pair name="fdb8e1ae-f83a-46cf-9446-1d703716f38a@Release@CortexM0p@General@Output Directory" v="${ProjectDir}\${ProcessorType}\${Platform}\${Config}" />
@@ -4403,7 +4403,7 @@
 <name_val_pair name="fdb8e1ae-f83a-46cf-9446-1d703716f38a@Debug@CortexM4@Linker@General@Custom Linker Script" v="" />
 <name_val_pair name="fdb8e1ae-f83a-46cf-9446-1d703716f38a@Debug@CortexM4@Linker@General@Generate Debugging Information" v="True" />
 <name_val_pair name="fdb8e1ae-f83a-46cf-9446-1d703716f38a@Debug@CortexM4@Linker@General@Use Default Libs" v="True" />
-<name_val_pair name="fdb8e1ae-f83a-46cf-9446-1d703716f38a@Debug@CortexM4@Linker@Command Line@Command Line" v="" />
+<name_val_pair name="fdb8e1ae-f83a-46cf-9446-1d703716f38a@Debug@CortexM4@Linker@Command Line@Command Line" v="--diag_suppress=L6314W,L6329W" />
 <name_val_pair name="fdb8e1ae-f83a-46cf-9446-1d703716f38a@Debug@CortexM4@User Commands@General@Pre Build Commands" v="" />
 <name_val_pair name="fdb8e1ae-f83a-46cf-9446-1d703716f38a@Debug@CortexM4@User Commands@General@Post Build Commands" v="" />
 <name_val_pair name="fdb8e1ae-f83a-46cf-9446-1d703716f38a@Release@CortexM4@General@Output Directory" v="${ProjectDir}\${ProcessorType}\${Platform}\${Config}" />
@@ -4489,6 +4489,6 @@
 <ignored_deps />
 </CyGuid_495451fe-d201-4d01-b22d-5d3f5609ac37>
 <boot_component v="" />
-<current_generation v="16" />
+<current_generation v="18" />
 </CyGuid_fec8f9e8-2365-4bdb-96d3-a4380222e01b>
 </CyXmlSerializer>
