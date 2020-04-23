@@ -221,7 +221,7 @@
 #define BSP_USING_SPI3
 #define BSP_USING_QSPI
 #define BSP_USING_I2C
-#define BSP_USING_I2C1
+#define BSP_USING_I2C0
 #define BSP_USING_I2C2
 #define BSP_USING_ONCHIP_RTC
 #define BSP_RTC_USING_LSE

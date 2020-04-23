@@ -137,7 +137,7 @@ int max30208_port(void)
 {
     struct rt_sensor_config cfg;
 
-    cfg.intf.dev_name = "i2c1";
+    cfg.intf.dev_name = "i2c2";
     cfg.intf.user_data = (void *)MAX30208_ADDR;
     cfg.irq_pin.pin = RT_PIN_NONE;
 
