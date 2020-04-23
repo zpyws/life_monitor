@@ -11,15 +11,18 @@
 
 static max30208_device_t max30208_create(struct rt_sensor_intf *intf)
 {
-    max30208_device_t hdev = rt_malloc(sizeof(max30208_device_t));
+    max30208_device_t hdev;
 	
-    if (hdev == RT_NULL)
-    {
+    hdev  = rt_malloc(sizeof(max30208_device_t));
+    if(hdev==RT_NULL)
         return RT_NULL;
-    }
-	
-    max30208_init(hdev, intf->dev_name);
-
+    
+    if( max30208_init(hdev, intf->dev_name) != RT_EOK )
+    {
+        rt_free(hdev);
+        return RT_NULL;
+	}
+    
     return hdev;
 }
 
@@ -95,6 +98,11 @@ int rt_hw_max30208_init(const char *name, struct rt_sensor_config *cfg)
 	rt_int8_t result;
 	rt_sensor_t sensor = RT_NULL;
 	max30208_device_t hdev = max30208_create(&cfg->intf);
+    if(hdev==RT_NULL)
+    {
+        LOG_E("could not find max30208 device\n");
+        return -2;
+    }
 
     sensor = rt_calloc(1, sizeof(struct rt_sensor_device));
     if (sensor == RT_NULL)
