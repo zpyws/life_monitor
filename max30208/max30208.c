@@ -72,7 +72,7 @@ static rt_err_t max30208_reset(max30208_device_t hdev, uint16_t addr)
 {
     RT_ASSERT(hdev);
     
-    return max30208_write_reg(hdev->bus, addr, 0x0c, 0x01);
+    return max30208_write_reg(hdev->bus, addr, MAX30208_SYSTEM_CONTROL, 0x01);
 }
 
 //by yangwensen@20200415
@@ -80,7 +80,7 @@ static rt_err_t max30208_convert(max30208_device_t hdev, uint16_t addr)
 {
     RT_ASSERT(hdev);
     
-    return max30208_write_reg(hdev->bus, addr, 0x14, 0xc1);
+    return max30208_write_reg(hdev->bus, addr, MAX30208_TEMP_SENSOR_SETUP, 0xc1);
 }
 
 //by yangwensen@20200415
@@ -91,11 +91,11 @@ static rt_err_t max30208_get_uid(max30208_device_t hdev, uint16_t addr)
     rt_err_t ret;
     uint8_t uid[6];
     
-    ret = max30208_read_regs(hdev->bus, addr, 0x31, uid, sizeof(uid));
+    ret = max30208_read_regs(hdev->bus, addr, MAX30208_PART_ID1, uid, sizeof(uid));
     if(ret==RT_EOK)
         LOG_I("MAX30208 UID:0x%02x%02x%02x%02x%02x%02x\n", uid[0], uid[1], uid[2], uid[3], uid[4], uid[5]);
         
-    ret = max30208_read_regs(hdev->bus, addr, 0xff, uid, 1);
+    ret = max30208_read_regs(hdev->bus, addr, MAX30208_PART_IDENTIFIER, uid, 1);
     if(ret==RT_EOK)
         LOG_I("max30208 part identifier:0x%02x\n", uid[0]);
         
