@@ -17,7 +17,7 @@ static max30208_device_t max30208_create(struct rt_sensor_intf *intf)
     if(hdev==RT_NULL)
         return RT_NULL;
     
-    if( max30208_init(hdev, intf->dev_name) != RT_EOK )
+    if( max30208_init(hdev, intf) != RT_EOK )
     {
         rt_free(hdev);
         return RT_NULL;
@@ -35,7 +35,7 @@ static rt_size_t max30208_fetch_data(struct rt_sensor_device *sensor, void *buf,
     {
         float light_value;
 
-		light_value = max30208_read_temp(hdev);
+		light_value = max30208_read_temp(hdev, (uint32_t)(sensor->config.intf.user_data));
 
         data->type = RT_SENSOR_CLASS_TEMP;
         data->data.light = (rt_int32_t)(light_value);
@@ -138,7 +138,7 @@ int max30208_port(void)
     struct rt_sensor_config cfg;
 
     cfg.intf.dev_name = "i2c2";
-    cfg.intf.user_data = (void *)MAX30208_ADDR;
+    cfg.intf.user_data = (void *)(MAX30208_ADDR+0);
     cfg.irq_pin.pin = RT_PIN_NONE;
 
     rt_hw_max30208_init("max30208", &cfg);
