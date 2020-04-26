@@ -53,7 +53,6 @@ rt_err_t max30208_power_on(max30208_device_t hdev);
 rt_err_t max30208_power_down(max30208_device_t hdev);
 rt_err_t max30208_init(max30208_device_t hdev, struct rt_sensor_intf *intf);
 float max30208_read_temp(max30208_device_t hdev, uint16_t addr);
-
-
+extern rt_err_t max30208_get_part_id(max30208_device_t hdev, uint16_t addr, uint8_t *buff);
 
 #endif /* __BH1750_H__ */

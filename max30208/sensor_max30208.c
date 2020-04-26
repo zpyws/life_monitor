@@ -33,12 +33,12 @@ static rt_size_t max30208_fetch_data(struct rt_sensor_device *sensor, void *buf,
     
     if (sensor->info.type == RT_SENSOR_CLASS_TEMP)
     {
-        float light_value;
+        float temp;
 
-		light_value = max30208_read_temp(hdev, (uint32_t)(sensor->config.intf.user_data));
+		temp = max30208_read_temp(hdev, (uint32_t)(sensor->config.intf.user_data));
 
         data->type = RT_SENSOR_CLASS_TEMP;
-        data->data.light = (rt_int32_t)(light_value);
+        data->data.temp = temp * 10;
         data->timestamp = rt_sensor_get_ts();
     }
     
@@ -68,6 +68,7 @@ static rt_err_t max30208_control(struct rt_sensor_device *sensor, int cmd, void 
 {
     rt_err_t result = RT_EOK;
     max30208_device_t hdev = sensor->parent.user_data;
+    uint32_t addr = (uint32_t)(sensor->config.intf.user_data);
 
     switch (cmd)
     {
@@ -79,6 +80,10 @@ static rt_err_t max30208_control(struct rt_sensor_device *sensor, int cmd, void 
 			result =  -RT_EINVAL;
         break;
 		
+        case RT_SENSOR_CTRL_GET_ID:
+            max30208_get_part_id(hdev, addr, args);
+        break;
+            
 		default:
 			result = -RT_ERROR;
 		break;
@@ -115,7 +120,7 @@ int rt_hw_max30208_init(const char *name, struct rt_sensor_config *cfg)
     sensor->info.intf_type  = RT_SENSOR_INTF_I2C;
     sensor->info.range_max  = 85;
     sensor->info.range_min  = -40;
-    sensor->info.period_min = 100;
+    sensor->info.period_min = 80;
 
     rt_memcpy(&sensor->config, cfg, sizeof(struct rt_sensor_config));
     sensor->ops = &sensor_ops;
