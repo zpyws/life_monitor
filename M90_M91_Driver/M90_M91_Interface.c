@@ -14,13 +14,16 @@
 #include <rtthread.h>
 #include <board.h>
 
+#define LOG_TAG                         "LoRa"
+#define LOG_LVL                         LOG_LVL_DBG
+#include <ulog.h>
+
 #include "M90_M91_Interface.h"
 #include <string.h>
 
 #define NET_MODE
 
 uint8_t EVK_Version[] = "LoRawan LoRaNode EVK Ver1.0.00 Apr 25 2018 20:45:28";
-char *M91_Vel = NULL;    
 LoRaNode_Info LoRaNode;
 LoRaNode_Info *LoRaNode_str = &LoRaNode;
 
@@ -32,6 +35,8 @@ uint8_t AT_Data_buf[RXLEN];
 
 extern int lora_read(uint8_t *buff, uint32_t len);
 extern int lora_write(uint8_t *buff, uint32_t len);
+
+#define LORA_WRITE_STRING(str)      lora_write(str,sizeof(str)-1)
 //--------------------------------M90状态控制函数集-------------------------------//
 /**
   * @简介：该函数用于M90模块进行初始化。              
@@ -46,7 +51,7 @@ void M90_M91_Init(void)
     LoRaNode_Reset();
     LoRaNode_SetWake(Mode_WakeUp);   
     LoRaNode_SetMode(Mode_CMD);	
-    rt_thread_mdelay(100);    
+    rt_thread_mdelay(100);
 }
 
 /**
@@ -95,7 +100,7 @@ void LoRaNode_SetWake(LoRaNode_SleepMode_T Mode)
   */
 void LoRaNode_Reset(void)
 {
-    LoRaNode_NRST_LOW();        
+    LoRaNode_NRST_LOW();
     rt_thread_mdelay(15);    //15ms    
     LoRaNode_NRST_HIGH();        
     rt_thread_mdelay(15);    //15ms
@@ -107,20 +112,14 @@ void LoRaNode_Reset(void)
   * @参数： 无  
   * @返回值：固件版本
   */
+//by yangwensen@200429
 char *LoRaNode_GetVer(void)
 {
-    uint8_t ASK_Ver[] = "AT+Ver?\r\n";
-    char *temp = "+VER:";
     memset(AT_Data_buf,0,RXLEN);              
-    LoRaNode_Send_AT(ASK_Ver);    
+    LORA_WRITE_STRING("AT+Ver?\r\n");
     rt_thread_mdelay(50); 
-    lora_read(AT_Data_buf, sizeof(AT_Data_buf));        
-    if(StringStr((char *)AT_Data_buf, temp) != NULL)
-    {
-        M91_Vel = StringStr((char *)AT_Data_buf, temp);
-        return M91_Vel;
-    }    
-    return M91_Vel;
+    lora_read(AT_Data_buf, sizeof(AT_Data_buf));
+    return strstr((char *)AT_Data_buf, "+VER:");
 }
 /**
   * @简介：该函数用于通过AT指令读取M90各个参数（返回值可以通过指针形式返回）。              

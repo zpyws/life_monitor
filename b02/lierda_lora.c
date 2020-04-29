@@ -175,7 +175,10 @@ int LoRaWAN_Node_SetParameter(void)
 	LoRaNode_SetMode(Mode_CMD);
 	rt_thread_mdelay(10);
 	
-	// 设置频率
+    //by yangwensen@20200429
+    LOG_D("Moudle:%s\n", LoRaNode_GetVer());
+
+    // 设置频率
 	result += LoRaNode_Setpoint("AT+FREQ=","1,8,475300000");
 	// 0->20dBm, 1->17, 2->16dBm, 3->14dBm, 4->12dBm, 5->10dBm, 6->7dBm, 7->5dBm, 8->2dBm
 	result += LoRaNode_Setinteger("AT+Power=", 0);
