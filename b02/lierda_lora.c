@@ -192,13 +192,13 @@ int LoRaWAN_Node_SetParameter(void)
 	
 	// 修改一下为自身应用的APPEUI
     result += LoRaNode_Setpoint("AT+APPEUI=","E5280479BFF6E0BC");    
-    Delay_ms(30);    
+    rt_thread_mdelay(30);    
 	// 修改一下为自身应用的APPKEY
 	result += LoRaNode_Setpoint("AT+APPKEY=","39CB081BDD61D05281A444678033EE65");    
-	Delay_ms(30);
+	rt_thread_mdelay(30);
 	
 	result += LoRaNode_Setpoint("AT+SAVE","\0");
-	Delay_ms(200);
+	rt_thread_mdelay(200);
 	
 	return result;
 	
@@ -210,7 +210,7 @@ void LoRaWAN_Join(void)
     
 	// 重启模块
 	LoRaNode_Reset();
-	Delay_ms(500); 
+	rt_thread_mdelay(500); 
     
 	// 进入透传模式
 	LoRaNode_SetMode(Mode_Transparent);
@@ -224,9 +224,9 @@ void LoRaWAN_Join(void)
         
 		rt_kprintf(".");
 //		LED3_ON;
-		Delay_ms(500);
+		rt_thread_mdelay(500);
 //  	LED3_OFF;
-		Delay_ms(500);
+		rt_thread_mdelay(500);
     }
     if(i<LORA_JOIN_TIMEOUT)
     {

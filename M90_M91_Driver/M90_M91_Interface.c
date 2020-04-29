@@ -31,6 +31,7 @@ Status_Info *LoRaNode_Status_str = &LoRaNode_Status;
 uint8_t AT_Data_buf[RXLEN];
 
 extern int lora_read(uint8_t *buff, uint32_t len);
+extern int lora_write(uint8_t *buff, uint32_t len);
 //--------------------------------M90状态控制函数集-------------------------------//
 /**
   * @简介：该函数用于M90模块进行初始化。              
@@ -45,7 +46,7 @@ void M90_M91_Init(void)
     LoRaNode_Reset();
     LoRaNode_SetWake(Mode_WakeUp);   
     LoRaNode_SetMode(Mode_CMD);	
-    Delay_ms(100);    
+    rt_thread_mdelay(100);    
 }
 
 /**
@@ -73,7 +74,7 @@ void LoRaNode_SetWake(LoRaNode_SleepMode_T Mode)
         if( rt_pin_read(LoRaNode_WAKE_PIN) == PIN_LOW)
         {
             LoRaNode_WAKE_HIGH();            
-            Delay_ms(100);                
+            rt_thread_mdelay(100);                
         }
     }
     
@@ -82,7 +83,7 @@ void LoRaNode_SetWake(LoRaNode_SleepMode_T Mode)
         if( rt_pin_read(LoRaNode_WAKE_PIN) == PIN_HIGH)
         {
             LoRaNode_WAKE_LOW();
-            Delay_ms(100);    
+            rt_thread_mdelay(100);    
         }
     }
 }
@@ -95,9 +96,9 @@ void LoRaNode_SetWake(LoRaNode_SleepMode_T Mode)
 void LoRaNode_Reset(void)
 {
     LoRaNode_NRST_LOW();        
-    Delay_ms(15);    //15ms    
+    rt_thread_mdelay(15);    //15ms    
     LoRaNode_NRST_HIGH();        
-    Delay_ms(15);    //15ms
+    rt_thread_mdelay(15);    //15ms
 }
 
 //--------------------------------AT指令函数集-------------------------------//
@@ -112,7 +113,7 @@ char *LoRaNode_GetVer(void)
     char *temp = "+VER:";
     memset(AT_Data_buf,0,RXLEN);              
     LoRaNode_Send_AT(ASK_Ver);    
-    Delay_ms(50); 
+    rt_thread_mdelay(50); 
     lora_read(AT_Data_buf, sizeof(AT_Data_buf));        
     if(StringStr((char *)AT_Data_buf, temp) != NULL)
     {
@@ -333,7 +334,7 @@ int LoRaNode_Setinteger(uint8_t *AT_Command,uint32_t AT_Value)
     StringConcat(Command, buf);    
     memset(AT_Data_buf,0,RXLEN);               
     LoRaNode_Send_AT(Command);    
-    Delay_ms(50);   
+    rt_thread_mdelay(50);   
     lora_read(AT_Data_buf, sizeof(AT_Data_buf));
     if(StringStr((char *)AT_Data_buf, temp) != NULL)
     {
@@ -356,7 +357,7 @@ int LoRaNode_Setpoint(uint8_t *AT_Command,uint8_t *AT_Key)
     StringConcat(Command, AT_Key);    
     memset(AT_Data_buf,0,RXLEN);               
     LoRaNode_Send_AT(Command);
-    Delay_ms(100);    
+    rt_thread_mdelay(100);    
     lora_read(AT_Data_buf, sizeof(AT_Data_buf));
     if(StringStr((char *)AT_Data_buf, temp) != NULL)
     {
@@ -445,7 +446,7 @@ int LoRaNode_SetP2P(uint32_t f,uint8_t a,uint8_t b,uint8_t c,uint8_t d,uint8_t e
     memset(AT_Data_buf,0,RXLEN);           
     
     LoRaNode_Send_AT(SetDebug);
-    Delay_ms(50);
+    rt_thread_mdelay(50);
     lora_read(AT_Data_buf, sizeof(AT_Data_buf));
     
     if(StringStr((char *)AT_Data_buf, temp) != NULL)
@@ -464,12 +465,7 @@ int LoRaNode_SetP2P(uint32_t f,uint8_t a,uint8_t b,uint8_t c,uint8_t d,uint8_t e
   */
 void LoRaNode_SendData(uint8_t *pdata, uint16_t Length)  
 {  
-    uint32_t i = 0;
-    
-    for (i = 0; i < Length; i++)
-    {
-        LoRaNode_UART_Send_Byte(pdata[i]);
-    }
+    lora_write(pdata, Length);
 }
 
 /**
@@ -479,7 +475,7 @@ void LoRaNode_SendData(uint8_t *pdata, uint16_t Length)
   */
 void LoRaNode_Send_AT(uint8_t *at_buf)
 {
-    LoRaNode_UART_Send_String(at_buf);
+    lora_write((uint8_t *)at_buf, rt_strlen((const char *)at_buf));
 }
 
 /**

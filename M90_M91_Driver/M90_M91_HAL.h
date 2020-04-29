@@ -14,22 +14,11 @@
 #include <stdint.h>
 
 /* LoRawan LoRaNode pin configuration */
-#define LoRaNode_WAKE_PIN					GET_PIN(10, 2)
-
-//#define LoRaNode_WAKE_GPIO_PORT         	GPIOC
-
-#define LoRaNode_MODE_PIN					GET_PIN(10, 3)
-//#define LoRaNode_MODE_GPIO_PORT         	GPIOA
-
+#define LoRaNode_WAKE_PIN					GET_PIN(10, 5)
+#define LoRaNode_MODE_PIN					GET_PIN(10, 6)
 #define LoRaNode_NRST_PIN					GET_PIN(10, 4)
-//#define LoRaNode_NRST_GPIO_PORT         	GPIOA
-
-/* INPUT */													
-#define LoRaNode_STAT_PIN					GET_PIN(10, 5)
-//#define LoRaNode_STAT_GPIO_PORT         	GPIOC
-
-#define LoRaNode_BUSY_PIN					GET_PIN(10, 6)
-//#define LoRaNode_BUSY_GPIO_PORT         	GPIOC
+#define LoRaNode_STAT_PIN					GET_PIN(10, 3)
+#define LoRaNode_BUSY_PIN					GET_PIN(10, 2)
 
 #define RECEIVELEN 1024
 
@@ -77,8 +66,6 @@ void LPTIM1_SingleStart_s(uint16_t arr,LPTIM1_FlagTypeDef LPTIM_Flag);
 //-----------------------------GPIO-----------------------------//
 void LoRaNode_GPIO_Init(void);
 
-//----------------------------Delay-----------------------------//
-void Delay_ms(uint32_t Delay);
 
 #endif
 

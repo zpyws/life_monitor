@@ -99,29 +99,6 @@ void HAL_UART_RxCpltCallback(void)
 //    HAL_TIM_Base_Start_IT (&TIM3_UARTHandler);
 }
 
-/**
-  * @简介：该函数用于MCU对LoRaWAN节点模块发送一个字符串。              
-  * @参数： str为被发送字符串  
-  * @返回值：无
-  */
-void LoRaNode_UART_Send_String(uint8_t *str)
-{
-    while((*str)!=0)
-    {
-        lora_write(str++, 1);
-    }
-}
-
-/**
-  * @简介：该函数用于MCU对LoRaWAN节点模块发送一个字节。              
-  * @参数： data为被发送字节  
-  * @返回值：无
-  */
-void LoRaNode_UART_Send_Byte(uint8_t data)
-{
-    lora_write(&data, 1);
-}
-
 //-----------------------------LPTIM1-----------------------------//
 //该部分函数为MCU低功耗定时器部分，主要为应用程序提供超时判断，包含低
 //功耗定时器初始化，开始，停止以及中断回调函数。
@@ -183,37 +160,21 @@ void HAL_LPTIM_MspInit(void)
 {
 }
 
-//-----------------------------GPIO-----------------------------//
-//该部分函数为系统用到的GPIO的初始化函数，用户根据自己的平台相应修改
-//--------------------------------------------------------------//
 //by yangwensen@20200403
 void LoRaNode_GPIO_Init(void)
 {
-    /* GPIO Ports Clock Enable */
-    
-    /*Configure GPIO pins : PC3  fro WAKE in LoRaNode */
     rt_pin_mode(LoRaNode_WAKE_PIN, PIN_MODE_OUTPUT);
     rt_pin_write(LoRaNode_WAKE_PIN, PIN_HIGH);
     
-    /*Configure GPIO pins : PC4  fro STAT in LoRaNode ,PC5  fro BUSY in LoRaNode*/
     rt_pin_mode(LoRaNode_STAT_PIN, PIN_MODE_INPUT);
     
     rt_pin_mode(LoRaNode_BUSY_PIN, PIN_MODE_INPUT);
 
-    /*Configure GPIO pins : PA0  fro MODE in LoRaNode ,PA1 fro RST in LoRaNode*/    
     rt_pin_mode(LoRaNode_MODE_PIN, PIN_MODE_OUTPUT);
     rt_pin_write(LoRaNode_MODE_PIN, PIN_HIGH);
 
     rt_pin_mode(LoRaNode_NRST_PIN, PIN_MODE_OUTPUT);
     rt_pin_write(LoRaNode_NRST_PIN, PIN_HIGH);
 }
-
-//----------------------------Delay-----------------------------//
-//by yangwensen@20200403
-void Delay_ms(uint32_t Delay)
-{
-    rt_thread_mdelay(Delay);
-}
-
 
 
