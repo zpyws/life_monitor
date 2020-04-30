@@ -68,7 +68,7 @@ static int lora_uart_init(void)
     
     rt_sem_init(&rx_sem, "lora_rx", 0, RT_IPC_FLAG_FIFO);
     
-    if (rt_device_open(serial, RT_DEVICE_FLAG_INT_RX) != RT_EOK)
+    if (rt_device_open(serial, RT_DEVICE_OFLAG_RDWR|RT_DEVICE_FLAG_INT_RX) != RT_EOK)
     {
         rt_kprintf("uart open error.\n");
         return -3;
@@ -151,8 +151,9 @@ extern int lora_read(uint8_t *buff, uint32_t len)
     res = rt_device_read(lora_uart_device, -1, buff, len);
     if(res == 0)
         return -1;
-    
+
     rt_sem_take(&rx_sem, RT_WAITING_FOREVER);
+
     return res;
 }
 
@@ -167,7 +168,9 @@ extern int lora_write(uint8_t *buff, uint32_t len)
 // 设置模块参数
 int LoRaWAN_Node_SetParameter(void)
 {
+    uint8_t a[8];
 	int result = 0;
+    
 	// 唤醒模块
 	LoRaNode_SetWake(Mode_WakeUp);
 	rt_thread_mdelay(10);
@@ -177,6 +180,10 @@ int LoRaWAN_Node_SetParameter(void)
 	
     //by yangwensen@20200429
     LOG_D("Moudle:%s\n", LoRaNode_GetVer());
+    
+    rt_memset(a, 0, sizeof(a));
+    LoRaNode_Getpoint("AT+DEVEUI?", a);
+    LOG_D("DEVEUI:%02X %02X %02X %02X %02X %02X %02X %02X", a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]);
 
     // 设置频率
 	result += LoRaNode_Setpoint("AT+FREQ=","1,8,475300000");

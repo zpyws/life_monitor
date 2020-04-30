@@ -141,7 +141,8 @@ void LoRaNode_Getpoint(uint8_t *AT_Command,uint8_t *AT_Value)
     Command[stringlen] = '\0';
     
     memset(AT_Data_buf,0,RXLEN);               
-    LoRaNode_Send_AT(Command);    
+    LoRaNode_Send_AT(Command);
+    rt_thread_mdelay(50);           //added by yangwensen@20200430
     lora_read(AT_Data_buf, sizeof(AT_Data_buf));
     strncpy((char*)Check,(const char*)AT_Command+2,stringlen-5);
     if((ptr = StringStr((char *)AT_Data_buf, (char*)Check)) != NULL)
