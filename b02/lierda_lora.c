@@ -13,7 +13,7 @@
 
 #define LORA_PRINT_RAW_DATA             1
 
-#define LORA_JOIN_TIMEOUT               15//00
+#define LORA_JOIN_TIMEOUT               1500
 //********************************************************************************************************************************************
 rt_device_t lora_uart_device = RT_NULL;
 static struct rt_semaphore rx_sem;
@@ -168,7 +168,7 @@ extern int lora_write(uint8_t *buff, uint32_t len)
 // 设置模块参数
 int LoRaWAN_Node_SetParameter(void)
 {
-    uint8_t a[8];
+    uint8_t a[16];
 	int result = 0;
     
 	// 唤醒模块
@@ -201,17 +201,25 @@ int LoRaWAN_Node_SetParameter(void)
 	result += LoRaNode_Setinteger("AT+OTAA=",NET_OTAA);
 	
 	// 修改一下为自身应用的APPEUI
-    result += LoRaNode_Setpoint("AT+APPEUI=","E5280479BFF6E0BC");    
+    result += LoRaNode_Setpoint("AT+APPEUI=","616E2F87C71DF625");    
     rt_thread_mdelay(30);    
 	// 修改一下为自身应用的APPKEY
-	result += LoRaNode_Setpoint("AT+APPKEY=","39CB081BDD61D05281A444678033EE65");    
+	result += LoRaNode_Setpoint("AT+APPKEY=","746A209F0E0FC0C5B94452B304066A59");    
 	rt_thread_mdelay(30);
 	
 	result += LoRaNode_Setpoint("AT+SAVE","\0");
 	rt_thread_mdelay(200);
-	
+//========================================================================================
+    //by yangwensen@20200430
+    rt_memset(a, 0, sizeof(a));
+    LoRaNode_Getpoint("AT+APPEUI?", a);
+    LOG_D("APPEUI:%02X %02X %02X %02X %02X %02X %02X %02X", a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]);
+
+    rt_memset(a, 0, sizeof(a));
+    LoRaNode_Getpoint("AT+APPKEY?", a);
+    LOG_D("APPKEY:%02X %02X %02X %02X %02X %02X %02X %02X", a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]);
+    
 	return result;
-	
 }
 //********************************************************************************************************************************************
 void LoRaWAN_Join(void)
