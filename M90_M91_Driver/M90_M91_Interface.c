@@ -36,7 +36,7 @@ uint8_t AT_Data_buf[RXLEN];
 extern int lora_read(uint8_t *buff, uint32_t len);
 extern int lora_write(uint8_t *buff, uint32_t len);
 
-#define LORA_WRITE_STRING(str)      lora_write(str,sizeof(str)-1)
+#define LORA_WRITE_STRING(str)      lora_write((uint8_t *)(str),sizeof(str)-1)
 //--------------------------------M90状态控制函数集-------------------------------//
 /**
   * @简介：该函数用于M90模块进行初始化。              
@@ -673,3 +673,39 @@ void LoRaNode_ErrorHandler(void)
     }
 }
 
+//by yangwensen@20200430
+extern void lora_query(char *at)
+{
+    int len;
+    char cmd[20] = {0};
+    
+    strcpy(cmd, at);
+    strcat(cmd, "\r\n");
+    memset(AT_Data_buf,0,RXLEN);              
+    LOG_D("[MCU->LoRa]%s", at);
+    lora_write((uint8_t *)cmd, strlen(cmd));
+    rt_thread_mdelay(200); 
+    len = lora_read(AT_Data_buf, sizeof(AT_Data_buf));
+    if(len)
+        LOG_D("[MCU<-LoRa]%s", AT_Data_buf);
+}
+
+//by yangwensen@20200506
+extern int lora_restore_factory_settings(void)
+{
+    int len;
+    
+    memset(AT_Data_buf,0,RXLEN);
+    LORA_WRITE_STRING("AT+FACTORY\r\n");
+    rt_thread_mdelay(1500); 
+    len = lora_read(AT_Data_buf, sizeof(AT_Data_buf));
+    
+    if(len==0)
+        return -1;
+    LOG_D("[MCU<-LoRa]%s", AT_Data_buf);
+    
+    if( LoRaNode_BUSY_STATUS()==PIN_LOW )
+        return -2;
+    
+    return 0;
+}
