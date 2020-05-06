@@ -18,11 +18,13 @@
 rt_device_t lora_uart_device = RT_NULL;
 static struct rt_semaphore rx_sem;
 //static uint8_t lora_rx_buff[LORA_UART_RX_BUFF_SIZE];
-int LoRaWAN_Node_Send(uint8_t *buf, uint8_t confirm);
+int LoRaWAN_Node_Send(uint8_t *buf, uint16_t len, uint8_t confirm);
 //********************************************************************************************************************************************
 int LoRaWAN_Node_SetParameter(void);
 void LoRaWAN_Join(void);
 static uint8_t Time_Out_Break(uint32_t MAX_time , uint8_t *Sign);
+extern void lora_query(char *at);
+extern int lora_restore_factory_settings(void);
 //********************************************************************************************************************************************
 //by yangwensen@20200331
 static rt_err_t uart_rx_ind(rt_device_t dev, rt_size_t size)
@@ -120,7 +122,7 @@ static void task_lora(void *parameter)
 		SS_Data[4] = 0xFF;
 
 		// 上行数据
-		state = LoRaWAN_Node_Send(SS_Data, 1);
+		state = LoRaWAN_Node_Send(SS_Data, 5, 1);
 		if(state == 0)
         {
 			LOG_I("数据上行成功, 上行数据:");
@@ -169,7 +171,7 @@ extern int lora_write(uint8_t *buff, uint32_t len)
 int LoRaWAN_Node_SetParameter(void)
 {
     uint8_t a[16];
-	int result = 0;
+	int result,error = 0;
     
 	// 唤醒模块
 	LoRaNode_SetWake(Mode_WakeUp);
@@ -186,28 +188,95 @@ int LoRaWAN_Node_SetParameter(void)
     LOG_D("DEVEUI:%02X %02X %02X %02X %02X %02X %02X %02X", a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]);
 
     // 设置频率
-	result += LoRaNode_Setpoint("AT+FREQ=","1,8,475300000");
+	result = LoRaNode_Setpoint("AT+FREQ=","1,8,475300000");
+    if(result < 0)
+    {
+        LOG_E("AT+FREQ fail");
+        error--; 
+    }
+    
+    result = LoRaNode_Setinteger("AT+BAND=", 7);        //by yangwensen@20200430
+    if(result < 0)
+    {
+        LOG_E("AT+BAND fail");
+        error--; 
+    }
+    
 	// 0->20dBm, 1->17, 2->16dBm, 3->14dBm, 4->12dBm, 5->10dBm, 6->7dBm, 7->5dBm, 8->2dBm
-	result += LoRaNode_Setinteger("AT+Power=", 0);
+	result = LoRaNode_Setinteger("AT+Power=", 0);
+    if(result < 0)
+    {
+        LOG_E("AT+Power fail");
+        error--; 
+    }
+        
 	// 0->SF12, 1->SF11, 2->SF10, 3->SF9, 4->SF8, 5->SF7
-	result += LoRaNode_Setinteger("AT+DATARATE=", 3);
+	result = LoRaNode_Setinteger("AT+DATARATE=", 3);
+    if(result < 0)
+    {
+        LOG_E("AT+DATARATE fail");
+        error--; 
+    }
+        
 	// 0:UNCONFIRM 1:CONFIRM
-	result += LoRaNode_Setinteger("AT+CONFIRM=", 1);
+	result = LoRaNode_Setinteger("AT+CONFIRM=", 1);
+    if(result < 0)
+    {
+        LOG_E("AT+CONFIRM fail");
+        error--; 
+    }
+        
 	// 设置RX2
-	result += LoRaNode_Setpoint("AT+RX2=","0,505300000");
+	result = LoRaNode_Setpoint("AT+RX2=","0,505300000");
+    if(result < 0)
+    {
+        LOG_E("AT+RX2 fail");
+        error--; 
+    }
+        
 	// 设置CLASS
-	result += LoRaNode_Setinteger("AT+CLASS=",Class_A);
+	result = LoRaNode_Setinteger("AT+CLASS=",Class_A);
+    if(result < 0)
+    {
+        LOG_E("AT+CLASS fail");
+        error--; 
+    }
+        
 	// 设置OTAA
-	result += LoRaNode_Setinteger("AT+OTAA=",NET_OTAA);
+	result = LoRaNode_Setinteger("AT+OTAA=",NET_OTAA);
+    if(result < 0)
+    {
+        LOG_E("AT+OTAA fail");
+        error--; 
+    }
 	
 	// 修改一下为自身应用的APPEUI
     result += LoRaNode_Setpoint("AT+APPEUI=","616E2F87C71DF625");    
-    rt_thread_mdelay(30);    
+    if(result < 0)
+    {
+        LOG_E("AT+APPEUI fail");
+        error--; 
+    }
+        
+    rt_thread_mdelay(30);
+    
 	// 修改一下为自身应用的APPKEY
-	result += LoRaNode_Setpoint("AT+APPKEY=","746A209F0E0FC0C5B94452B304066A59");    
+	result = LoRaNode_Setpoint("AT+APPKEY=","746A209F0E0FC0C5B94452B304066A59");    
+    if(result < 0)
+    {
+        LOG_E("AT+APPKEY fail");
+        error--; 
+    }
+
 	rt_thread_mdelay(30);
 	
-	result += LoRaNode_Setpoint("AT+SAVE","\0");
+	result = LoRaNode_Setpoint("AT+SAVE","\0");
+    if(result < 0)
+    {
+        LOG_E("AT+SAVE fail");
+        error--; 
+    }
+
 	rt_thread_mdelay(200);
 //========================================================================================
     //by yangwensen@20200430
@@ -215,11 +284,15 @@ int LoRaWAN_Node_SetParameter(void)
     LoRaNode_Getpoint("AT+APPEUI?", a);
     LOG_D("APPEUI:%02X %02X %02X %02X %02X %02X %02X %02X", a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]);
 
-    rt_memset(a, 0, sizeof(a));
-    LoRaNode_Getpoint("AT+APPKEY?", a);
-    LOG_D("APPKEY:%02X %02X %02X %02X %02X %02X %02X %02X", a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]);
+//    rt_memset(a, 0, sizeof(a));
+//    LoRaNode_Getpoint("AT+APPKEY?", a);
+//    LOG_D("APPKEY:%02X %02X %02X %02X %02X %02X %02X %02X", a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]);
     
-	return result;
+//    lora_query("AT+BAND?");
+//    lora_query("AT+FREQ?");
+    lora_restore_factory_settings();
+    
+	return error;
 }
 //********************************************************************************************************************************************
 void LoRaWAN_Join(void)
@@ -257,7 +330,7 @@ void LoRaWAN_Join(void)
     }
 }
 //********************************************************************************************************************************************
-int LoRaWAN_Node_Send(uint8_t *buf, uint8_t confirm)
+int LoRaWAN_Node_Send(uint8_t *buf, uint16_t len, uint8_t confirm)
 {
 	// 唤醒模块
 	LoRaNode_SetWake(Mode_WakeUp);
@@ -278,7 +351,7 @@ int LoRaWAN_Node_Send(uint8_t *buf, uint8_t confirm)
 	}
 	
     LOG_D("lora idle");
-	LoRaNode_Send_AT(buf);
+    lora_write(buf, len);
 
 	//----等待 BUSY 引脚处于忙状态(低电平)，等待时可以加超时判断
 	TimeOut_Sign = 0;
