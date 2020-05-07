@@ -25,6 +25,7 @@ void LoRaWAN_Join(void);
 static uint8_t Time_Out_Break(uint32_t MAX_time , uint8_t *Sign);
 extern void lora_query(char *at);
 extern int lora_restore_factory_settings(void);
+extern int send_sensor_data(void);
 //********************************************************************************************************************************************
 //by yangwensen@20200331
 static rt_err_t uart_rx_ind(rt_device_t dev, rt_size_t size)
@@ -87,7 +88,6 @@ static int lora_uart_init(void)
 static void task_lora(void *parameter)
 {
 	int state = 0;
-	uint8_t SS_Data[5]={0};
     
     lora_uart_init();
     M90_M91_Init();
@@ -115,18 +115,10 @@ static void task_lora(void *parameter)
         rt_kprintf("%s", lora_rx_buff);
     #endif
 #endif
-		SS_Data[0] = 0xFF;
-		SS_Data[1] = 0x00;
-		SS_Data[2] = 0x01;
-		SS_Data[3] = 0x02;
-		SS_Data[4] = 0xFF;
-
-		// 上行数据
-		state = LoRaWAN_Node_Send(SS_Data, 5, 1);
+        state = send_sensor_data();
 		if(state == 0)
         {
 			LOG_I("数据上行成功, 上行数据:");
-            ulog_hexdump("[LoRaTx]", 16, SS_Data, sizeof(SS_Data));
         }
 		else
 			LOG_E("数据上行错误,错误代码:%d\n", state);
@@ -138,7 +130,7 @@ static void task_lora(void *parameter)
 //by yangwensen@20200403
 extern void lora_startup(void)
 {
-    rt_thread_t thread = rt_thread_create("LoRa", task_lora, RT_NULL, 512, 25, 10);
+    rt_thread_t thread = rt_thread_create("LoRa", task_lora, RT_NULL, 1024, 25, 10);
     if (thread != RT_NULL)
     {
         rt_thread_startup(thread);
