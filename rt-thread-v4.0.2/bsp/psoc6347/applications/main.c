@@ -15,13 +15,15 @@
 extern void gps_startup(void);
 extern void bms_startup(void);
 extern void lora_startup(void);
+extern void max32664_startup(void);
 
 int main(void)
 {
     int count = 1;
 
+    max32664_startup();
     gps_startup();
-    bms_startup();
+//    bms_startup();
     lora_startup();
     while (count++)
     {
