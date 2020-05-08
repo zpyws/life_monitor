@@ -37,8 +37,8 @@
       <Data key="ba1f5150-a36c-4730-8c7a-853228e2d2ab/c8948441-ff15-42a0-9e51-75869d2ef747" value="SPI3_miso_m" />
       <Data key="bea3f9d3-6b24-485d-bc23-6e63e7509c79/65f3af6c-759b-4ccb-8c66-5c95ba1f5f4f" value="UART5_tx" />
       <Data key="bea3f9d3-6b24-485d-bc23-6e63e7509c79/b7e8018e-1ef7-49c0-b5a5-61641a03e31c" value="UART5_rx" />
-      <Data key="d28a5938-7af9-4e97-afe8-5446b6b9b869/2aab8a93-e7dd-4bd4-8210-42652cd079c5" value="GSENSOR_COMPASS_I2C_sda" />
-      <Data key="d28a5938-7af9-4e97-afe8-5446b6b9b869/69c3b5e8-b094-4d65-b96b-9f4f3a9a8641" value="GSENSOR_COMPASS_I2C_scl" />
+      <Data key="d28a5938-7af9-4e97-afe8-5446b6b9b869/2aab8a93-e7dd-4bd4-8210-42652cd079c5" value="I2C0_sda" />
+      <Data key="d28a5938-7af9-4e97-afe8-5446b6b9b869/69c3b5e8-b094-4d65-b96b-9f4f3a9a8641" value="I2C0_scl" />
       <Data key="f10d0ab9-fc17-4e87-af79-7fd5050725e7/65f3af6c-759b-4ccb-8c66-5c95ba1f5f4f" value="UART8_tx" />
       <Data key="f10d0ab9-fc17-4e87-af79-7fd5050725e7/b7e8018e-1ef7-49c0-b5a5-61641a03e31c" value="UART8_rx" />
     </Group>
@@ -744,7 +744,7 @@
     </Group>
     <Group key="4cca878b-77b5-471d-8aeb-ad6925202455">
       <Group key="0">
-        <Data key="Port Format" value="7,0" />
+        <Data key="Port Format" value="0,4" />
       </Group>
     </Group>
     <Group key="26a270ef-d524-4a8f-8147-304cf639fca7/6ba19c63-25fc-4919-b4e0-53fabfc62c78">
