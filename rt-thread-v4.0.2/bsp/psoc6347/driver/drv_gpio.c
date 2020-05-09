@@ -298,17 +298,17 @@ static void cy8c_pin_mode(rt_device_t dev, rt_base_t pin, rt_base_t mode)
     else if (mode == PIN_MODE_INPUT)
     {
         //Digital High-Z. Input buffer on
-        Cy_GPIO_SetDrivemode(pins[pin].gpio, pins[pin].pin, CY_GPIO_DM_HIGHZ);
+        Cy_GPIO_Pin_FastInit(pins[pin].gpio, pins[pin].pin, CY_GPIO_DM_HIGHZ, 1, HSIOM_SEL_GPIO);
     }
     else if (mode == PIN_MODE_INPUT_PULLUP)
     {
         //Resistive Pull-Up. Input buffer on
-        Cy_GPIO_SetDrivemode(pins[pin].gpio, pins[pin].pin, CY_GPIO_DM_PULLUP);
+        Cy_GPIO_Pin_FastInit(pins[pin].gpio, pins[pin].pin, CY_GPIO_DM_PULLUP, 1, HSIOM_SEL_GPIO);
     }
     else if (mode == PIN_MODE_INPUT_PULLDOWN)
     {
         //Resistive Pull-Down. Input buffer on
-        Cy_GPIO_SetDrivemode(pins[pin].gpio, pins[pin].pin, CY_GPIO_DM_PULLDOWN);
+        Cy_GPIO_Pin_FastInit(pins[pin].gpio, pins[pin].pin, CY_GPIO_DM_PULLDOWN, 1, HSIOM_SEL_GPIO);
     }
     else if (mode == PIN_MODE_OUTPUT_OD)
     {
