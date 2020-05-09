@@ -32,6 +32,10 @@
 */
 #include <rtthread.h>
 
+#define LOG_TAG                         "max32664"
+#define LOG_LVL                         LOG_LVL_DBG
+#include <ulog.h>
+
 #include "SHComm.h"
 //#include "cmdInterface.h"
 #include "demoDefinitions.h"
@@ -60,14 +64,16 @@
 
 static void max32664_main(void *parameter) 
 {
+    int status;
 
 #define WAIT_SENSORHUB_STABLE_BOOTUP_MS  ((uint32_t)2000)
 
 	rt_thread_mdelay(WAIT_SENSORHUB_STABLE_BOOTUP_MS);
 
 	sh_init_hwcomm_interface();
-
-    int status;
+    
+    LOG_I("SENSORHUB firmware version: %s\n", sh_get_hub_fw_version());
+    LOG_I("SENSORHUB algo version: %s\n", sh_get_hub_algo_version());
 
 #if defined(MEASURE_CONT_WHRM_CONT_WSPO2)
     status = measure_whrm_wspo2( (uint8_t) POLL_PERIOD_25MS , MXM_WEARABLE_ALGO_SUITE_CONTINUOUS_HRM_CONTINUOUS_SPO2_MODE);
@@ -93,9 +99,10 @@ static void max32664_main(void *parameter)
 
 
 	}
-
+    
 #endif
     (void)status;
+    rt_kprintf("measure_whrm_wspo2()=%d\n", status);
     while(1)
     {
         rt_thread_mdelay(1000);

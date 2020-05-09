@@ -150,35 +150,35 @@ int measure_whrm_wspo2(  uint8_t reportPeriod_in40msSteps ,   uint8_t algoSuiteO
 
 		 status = sh_get_input_fifo_size(&sHubInputFifoSz);
 	     if( status != SS_SUCCESS )
-	    	 return -1;
+	    	 return -2;
 	 }
 
     // enable data type to both raw sensor and algorithm data
      status = sh_set_data_type( SS_DATATYPE_BOTH, RT_FALSE );
      if( status != SS_SUCCESS )
-    	 return -1;
+    	 return -3;
 
 
      //set fifo threshold for mfio event frequency
      status = sh_set_fifo_thresh(sensHubReportFifoThresh);
      if( status != SS_SUCCESS )
-     	 return -1;
+     	 return -4;
 
 
      if(accelBehavior == SH_INPUT_DATA_FROM_HOST) {
 
     	 status = sh_sensor_enable_(SH_SENSORIDX_ACCEL, 1 , SH_INPUT_DATA_FROM_HOST);
     	 if( status != SS_SUCCESS )
-    		 return -1;
+    		 return -5;
      }
 
      status = sh_set_cfg_wearablesuite_algomode( algoSuiteOperatingMode );
      if( status != SS_SUCCESS )
-     	 return -1;
+     	 return -6;
 
      status = sh_enable_algo_(SS_ALGOIDX_WHRM_WSPO2_SUITE , (int) ALGO_REPORT_MODE_BASIC);
      if( status != SS_SUCCESS )
-     	 return -1;
+     	 return -7;
 
      int poolPeriod_ms =  ((int)reportPeriod_in40msSteps) * 40 * 5;
      start_hub_event_poll(poolPeriod_ms);

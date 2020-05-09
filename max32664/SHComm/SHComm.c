@@ -85,7 +85,7 @@
 //PinName ss_reset(P5_6);            /* platform specific sensor hub reset pin */
 //DigitalInOut reset_pin(ss_reset);  /* reset pin mode be I/O */
 #endif
-#define SENSORHUB_MFIO_PIN					GET_PIN(9, 3)
+#define SENSORHUB_MFIO_PIN					GET_PIN(9, 4)
 
 //PinName ss_mfio(P5_4);             /* platform specific mfio event pin */
 //DigitalInOut mfio_pin(ss_mfio);    /* mfio pin mode be I/O */
@@ -95,7 +95,7 @@
 
 //by yangwensen@20200508
 struct max32664_device max32664_dev;
-#define SENSORHUB_I2C_NAME                  "i2c0"
+#define SENSORHUB_I2C_NAME                  "i2c2"
 
 
 /* SENSOR HUB POLL TIMER. CUSTOMER SHALL USE THEIR OWN PLATFORM/OS TIMER */
@@ -174,8 +174,6 @@ void sh_init_hwcomm_interface(void){
 
     rt_pin_mode(SENSORHUB_MFIO_PIN, PIN_MODE_OUTPUT);
     rt_pin_write(SENSORHUB_MFIO_PIN, PIN_LOW);  /*set mfio as output to wake up me11 from sleep  */
-
-    return;
 }
 
 
@@ -646,7 +644,7 @@ int sh_write_cmd( uint8_t *tx_buf,
     	try_again = (status_byte == SS_ERR_TRY_AGAIN);
 	}
 
-    if (ret != 0 || try_again)
+    if (ret != 1 || try_again)
         return SS_ERR_UNAVAILABLE;
 
 	return (int) (SS_STATUS)status_byte;
