@@ -285,6 +285,10 @@ static rt_size_t cy8c63_i2c_mst_xfer(struct rt_i2c_bus_device *bus, struct rt_i2
                 break;
             }
         }
+
+    #ifdef RT_I2C_DEBUG
+        ulog_hexdump("I2C Data", 16, msg->buf, msg->len);
+    #endif
     }
     
     ret = i;
