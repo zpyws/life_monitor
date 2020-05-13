@@ -104,7 +104,6 @@ void _Error_Handler(char *s, int num)
  */
 void rt_hw_us_delay(rt_uint32_t us)
 {
-#if 0
     rt_uint32_t start, now, delta, reload, us_tick;
     start = SysTick->VAL;
     reload = SysTick->LOAD;
@@ -113,7 +112,6 @@ void rt_hw_us_delay(rt_uint32_t us)
         now = SysTick->VAL;
         delta = start > now ? start - now : reload + start - now;
     } while(delta < us_tick * us);
-#endif
 }
 
 /**
