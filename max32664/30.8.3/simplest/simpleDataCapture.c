@@ -176,9 +176,24 @@ int measure_whrm_wspo2(  uint8_t reportPeriod_in40msSteps ,   uint8_t algoSuiteO
      if( status != SS_SUCCESS )
      	 return -6;
 
-     status = sh_enable_algo_(SS_ALGOIDX_WHRM_WSPO2_SUITE , (int) ALGO_REPORT_MODE_BASIC);
+    //added by yangwensen@20200514
+    status = sh_set_cfg_wearablesuite_aecenable(RT_TRUE);
      if( status != SS_SUCCESS )
      	 return -7;
+    
+    //added by yangwensen@20200514
+    status = sh_set_cfg_wearablesuite_autopdcurrentenable(RT_TRUE);
+     if( status != SS_SUCCESS )
+     	 return -8;
+    
+    //added by yangwensen@20200514
+    status = sh_set_cfg_wearablesuite_scdenable(RT_TRUE);
+     if( status != SS_SUCCESS )
+     	 return -9;
+    
+     status = sh_enable_algo_(SS_ALGOIDX_WHRM_WSPO2_SUITE , (int) ALGO_REPORT_MODE_BASIC);
+     if( status != SS_SUCCESS )
+     	 return -10;
 
      int poolPeriod_ms =  ((int)reportPeriod_in40msSteps) * 40 * 5;
      start_hub_event_poll(poolPeriod_ms);

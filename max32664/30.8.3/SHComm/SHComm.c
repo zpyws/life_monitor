@@ -247,12 +247,13 @@ void sensor_hub_poll_event()
 }
 
 void start_hub_event_poll( int pollPeriod_ms){
-
+    rt_kprintf("start_hub_event_poll(not implemented yet\n)");
 //	shubEventPollTimer.attach(&sensor_hub_poll_event , ((float) pollPeriod_ms) / 1000.0);
 }
 
 void stop_hub_event_poll(void){
 
+    rt_kprintf("stop_hub_event_poll(not implemented yet\n)");
 //	shubEventPollTimer.detach();
 }
 
@@ -672,7 +673,7 @@ int sh_read_cmd( uint8_t *cmd_bytes,
 				 int rxbuf_sz,
                  int sleep_ms )
 {
-    struct rt_i2c_msg msg;
+    struct rt_i2c_msg msg[1];
     rt_size_t ret;
     rt_uint8_t txbuff[16];
 	int retries = SS_DEFAULT_RETRIES;
@@ -681,38 +682,22 @@ int sh_read_cmd( uint8_t *cmd_bytes,
     
     rt_memcpy(txbuff, cmd_bytes, cmd_bytes_len);
     rt_memcpy(&txbuff[cmd_bytes_len], data, data_len);    
-    msg.addr = SS_I2C_8BIT_SLAVE_ADDR >> 1;
-    msg.flags = RT_I2C_WR;
-    msg.buf = txbuff;
-    msg.len = cmd_bytes_len+data_len;
-    ret = rt_i2c_transfer(max32664_dev.bus, &msg, 1);
+    msg[0].addr = SS_I2C_8BIT_SLAVE_ADDR >> 1;
+    msg[0].flags = RT_I2C_WR;
+    msg[0].buf = txbuff;
+    msg[0].len = cmd_bytes_len+data_len;
+    
+    ret = rt_i2c_transfer(max32664_dev.bus, msg, 1);
 	LPM_pull_mfio_to_high();
 	//LPM_set_mfio_as_input();
-#if 0
-    if (data_len != 0) {
-        LPM_pull_mfio_to_low_and_keep(250);
-    	ret |= m_i2cBus->write(SS_I2C_8BIT_SLAVE_ADDR, (char*)data, data_len, false);
-    	LPM_pull_mfio_to_high();
-    	//LPM_set_mfio_as_input();
-    }
-#endif
+
 	while (ret != 1 && retries-- > 0) {
 		rt_thread_mdelay(1);
 
 		LPM_pull_mfio_to_low_and_keep(250);
-        ret = rt_i2c_transfer(max32664_dev.bus, &msg, 1);
+        ret = rt_i2c_transfer(max32664_dev.bus, msg, 1);
     	LPM_pull_mfio_to_high();
     	//LPM_set_mfio_as_input();
-#if 0
-    	if (data_len != 0) {
-
-    		LPM_pull_mfio_to_low_and_keep(250);
-    		ret |= m_i2cBus->write(SS_I2C_8BIT_SLAVE_ADDR, (char*)data, data_len, false);
-        	LPM_pull_mfio_to_high();
-        	//LPM_set_mfio_as_input();
-
-    	}
-#endif
 	}
     if (ret != 1)
     	return SS_ERR_UNAVAILABLE;
@@ -721,10 +706,10 @@ int sh_read_cmd( uint8_t *cmd_bytes,
     rt_thread_mdelay(sleep_ms);
 
 	LPM_pull_mfio_to_low_and_keep(250);
-    msg.flags = RT_I2C_RD;
-    msg.buf = rxbuf;
-    msg.len = rxbuf_sz;
-    ret = rt_i2c_transfer(max32664_dev.bus, &msg, 1);
+    msg[0].flags = RT_I2C_RD;
+    msg[0].buf = rxbuf;
+    msg[0].len = rxbuf_sz;
+    ret = rt_i2c_transfer(max32664_dev.bus, msg, 1);
 	LPM_pull_mfio_to_high();
 	//LPM_set_mfio_as_input();
 
@@ -733,7 +718,7 @@ int sh_read_cmd( uint8_t *cmd_bytes,
 		rt_thread_mdelay(sleep_ms);
 
 		LPM_pull_mfio_to_low_and_keep(250);
-        ret = rt_i2c_transfer(max32664_dev.bus, &msg, 1);
+        ret = rt_i2c_transfer(max32664_dev.bus, msg, 1);
 		LPM_pull_mfio_to_high();
 		//LPM_set_mfio_as_input();
 
