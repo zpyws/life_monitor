@@ -142,17 +142,6 @@ int measure_whrm_wspo2(  uint8_t reportPeriod_in40msSteps ,   uint8_t algoSuiteO
 
 	 int status;
 
-	 status  =  sh_set_report_period(reportPeriod_in40msSteps);
-     if( status != SS_SUCCESS )
-    	 return -1;
-
-	 if(accelBehavior == SH_INPUT_DATA_FROM_HOST) {
-
-		 status = sh_get_input_fifo_size(&sHubInputFifoSz);
-	     if( status != SS_SUCCESS )
-	    	 return -2;
-	 }
-
     // enable data type to both raw sensor and algorithm data
      status = sh_set_data_type( SS_DATATYPE_BOTH, RT_FALSE );
      if( status != SS_SUCCESS )
@@ -163,6 +152,17 @@ int measure_whrm_wspo2(  uint8_t reportPeriod_in40msSteps ,   uint8_t algoSuiteO
      status = sh_set_fifo_thresh(sensHubReportFifoThresh);
      if( status != SS_SUCCESS )
      	 return -4;
+
+	 status  =  sh_set_report_period(reportPeriod_in40msSteps);
+     if( status != SS_SUCCESS )
+        return -1;
+
+	 if(accelBehavior == SH_INPUT_DATA_FROM_HOST) {
+
+		 status = sh_get_input_fifo_size(&sHubInputFifoSz);
+	     if( status != SS_SUCCESS )
+            return -2;
+	 }
 
 
      if(accelBehavior == SH_INPUT_DATA_FROM_HOST) {
