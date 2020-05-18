@@ -211,8 +211,10 @@ int measure_whrm_wspo2(  uint8_t reportPeriod_in40msSteps ,   uint8_t algoSuiteO
             rt_kprintf("error: unsupported mode\n");
     	 }
 
+        rt_thread_mdelay(poolPeriod_ms);        //by yangwensen@20200518
 
-    	 if( sh_has_mfio_event()) {
+//    	if( sh_has_mfio_event())
+        {
 
     		 sh_clear_mfio_event_flag();
 
@@ -230,7 +232,7 @@ int measure_whrm_wspo2(  uint8_t reportPeriod_in40msSteps ,   uint8_t algoSuiteO
 						 status = sh_read_fifo_data(num_samples, PPG_REPORT_SIZE + ACCEL_REPORT_SIZE + ALGO_REPORT_SIZE, &databuf[0], sizeof(databuf));
 						 if(status == SS_SUCCESS){
 
-							 //SERIALOUT(" data pull >> %d \r\n" , num_samples);
+							 SERIALOUT(" data pull >> %d \r\n" , num_samples);
 
 							 max8614x_mode1_data             ppgDataSample;
 							 accel_mode1_data                accelDataSamp;
