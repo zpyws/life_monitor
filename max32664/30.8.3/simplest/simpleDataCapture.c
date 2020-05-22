@@ -32,18 +32,54 @@
 */
 #include <rtthread.h>
 
+#define LOG_TAG                         "max32664"
+#define LOG_LVL                         LOG_LVL_DBG
+#include <ulog.h>
+
 #include "SHComm.h"
 
 #include "demoDefinitions.h"
 #include "algoConfigAPI.h"
 #include "simpleDataCapture.h"
 
+//by yangwensen@20200521
+struct max32664_normal_algorithm_report
+{
+    uint8_t ppg1[3];
+    uint8_t ppg2[3];
+    uint8_t ppg3[3];
+    uint8_t ppg4[3];
+    uint8_t ppg5[3];
+    uint8_t ppg6[3];
+    
+    uint8_t accx[2];
+    uint8_t accy[2];
+    uint8_t accz[2];
+    
+    uint8_t op_mode;
+    uint8_t hr[2];
+    uint8_t hr_confidence;
+    uint8_t rr[2];
+    uint8_t rr_confidence;
+    uint8_t activity_class;
+    uint8_t r[2];
+    uint8_t spo2_confidence;
+    uint8_t spo2[2];
+    uint8_t spo2_complete;
+    uint8_t spo2_low_signal_quality_flag;
+    uint8_t spo2_motion_flag;
+    uint8_t spo2_low_pi_flag;
+    uint8_t spo2_unreliable_r_flag;
+    uint8_t spo2_state;
+    uint8_t scd_state;
+};
 
 static uint8_t accelBehavior = SH_INPUT_DATA_DIRECT_SENSOR; //SH_INPUT_DATA_FROM_HOST ;
 static rt_bool_t hasActiveMeasurement = RT_FALSE;
 static int sHubInputFifoSz = 5;
 static uint8_t sh_data_report_mode = SSHUB_ALGO_RAW_DATA_REPORT_MODE;
 
+void max32664_print_raw_data(uint8_t *buff, uint8_t len);
 /* IMPORTANT:
  * Accel Data simualtor, accel sensor should be driven at 25Hz.
  * Accel data feeding to Sensor hub is habdled in block writes, ie multiple samples
@@ -208,7 +244,7 @@ int measure_whrm_wspo2(  uint8_t reportPeriod_in40msSteps ,   uint8_t algoSuiteO
     	 if( accelBehavior == SH_INPUT_DATA_FROM_HOST) {
 
 //    		 FeedAccDataIntoSensHub ();
-            rt_kprintf("error: unsupported mode\n");
+            LOG_E("error: unsupported mode\n");
     	 }
 
         rt_thread_mdelay(poolPeriod_ms);        //by yangwensen@20200518
@@ -232,62 +268,42 @@ int measure_whrm_wspo2(  uint8_t reportPeriod_in40msSteps ,   uint8_t algoSuiteO
 						 status = sh_read_fifo_data(num_samples, PPG_REPORT_SIZE + ACCEL_REPORT_SIZE + ALGO_REPORT_SIZE, &databuf[0], sizeof(databuf));
 						 if(status == SS_SUCCESS){
 
-							 SERIALOUT(" data pull >> %d \r\n" , num_samples);
+							 LOG_D(" data pull >> %d \r\n" , num_samples);
 
-							 max8614x_mode1_data             ppgDataSample;
-							 accel_mode1_data                accelDataSamp;
 							 whrm_wspo2_suite_mode1_data     algoDataSamp;
 
-							 uint8_t *ptr = &databuf[1]; //first byte is status so skip it.
+							//first byte is status so skip it.
+                            struct max32664_normal_algorithm_report *p = (struct max32664_normal_algorithm_report *)(&databuf[1]);
 							 //uint8_t *end = &databuf[num_samples*WHRM_FRAME_SIZE];
 							 //while( ptr < end )
 
 							 int sampleIdx = 0;
 							 while( sampleIdx < num_samples ) {
+//                            ulog_hexdump("raw data", 16, ptr, 43);
+//                            max32664_print_raw_data(ptr, 44);
 
-								 ppgDataSample.led1  			     =  (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
-								 ppgDataSample.led2  			     =  (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
-								 ppgDataSample.led3  			     =  (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
-								 ppgDataSample.led4  				 =  (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
-								 ppgDataSample.led5  				 =  (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
-								 ppgDataSample.led6  				 =  (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
+								 algoDataSamp.current_operating_mode =  p->op_mode;
+								 algoDataSamp.hr                     =  (p->hr[0]<<8) + p->hr[1];
+								 algoDataSamp.hr_conf                =  p->hr_confidence;
+								 algoDataSamp.rr                     =  (p->rr[0]<<8) + p->rr[1];
+								 algoDataSamp.rr_conf      			 =  p->rr_confidence;
+								 algoDataSamp.activity_class         =  p->activity_class;
+								 algoDataSamp.r                      =  (p->r[0]<<8) + p->r[1];
+								 algoDataSamp.spo2_conf              =  p->spo2_confidence;
+								 algoDataSamp.spo2                   =  (p->spo2[0]<<8) + p->spo2[1];
+								 algoDataSamp.percentComplete 		 =  p->spo2_complete;
+								 algoDataSamp.lowSignalQualityFlag   =  p->spo2_low_signal_quality_flag;
+								 algoDataSamp.motionFlag 			 =  p->spo2_motion_flag;
+								 algoDataSamp.lowPiFlag 			 =  p->spo2_low_pi_flag;
+								 algoDataSamp.unreliableRFlag 		 =  p->spo2_unreliable_r_flag;
+								 algoDataSamp.spo2State 			 =  p->spo2_state;
+								 algoDataSamp.scd_contact_state 	 =  p->scd_state;
 
-								 accelDataSamp.x                     =  (*ptr++ << 8)  + (*ptr++ << 0);
-								 accelDataSamp.y                     =  (*ptr++ << 8)  + (*ptr++ << 0);
-								 accelDataSamp.z                     =  (*ptr++ << 8)  + (*ptr++ << 0);
+								 LOG_D("hr= %d, hr_conf= %d, spo2= %d, spo2_conf= %d\r\n"
+										   , algoDataSamp.hr , p->hr_confidence , algoDataSamp.spo2 , p->spo2_confidence );
 
-								 algoDataSamp.current_operating_mode =  (*ptr++);
-								 algoDataSamp.hr                     =  (*ptr++ << 8)  + (*ptr++ << 0);
-								 algoDataSamp.hr_conf                =  (*ptr++);
-								 algoDataSamp.rr                     =  (*ptr++ << 8)  + (*ptr++ << 0);
-								 algoDataSamp.rr_conf      			 =  (*ptr++);
-								 algoDataSamp.activity_class         =  (*ptr++);
-								 algoDataSamp.r                      =  (*ptr++ << 8)  + (*ptr++ << 0);
-								 algoDataSamp.spo2_conf              =  (*ptr++);
-								 algoDataSamp.spo2                   =  (*ptr++ << 8)  + (*ptr++ << 0);
-								 algoDataSamp.percentComplete 		 =  (*ptr++);
-								 algoDataSamp.lowSignalQualityFlag   =  (*ptr++);
-								 algoDataSamp.motionFlag 			 =  (*ptr++);
-								 algoDataSamp.lowPiFlag 			 =  (*ptr++);
-								 algoDataSamp.unreliableRFlag 		 =  (*ptr++);
-								 algoDataSamp.spo2State 			 =  (*ptr++);
-								 algoDataSamp.scd_contact_state 	 =  (*ptr++);
-
-								 uint32_t green_led_cnt   			 =  ppgDataSample.led1;
-								 uint32_t ir_led_cnt   			     =  ppgDataSample.led2;
-								 uint32_t red_led_cnt   			 =  ppgDataSample.led3;
-
-								 uint32_t hr                  		 =  algoDataSamp.hr / 10;
-								 uint32_t hr_conf                  	 =  algoDataSamp.hr_conf;
-								 uint32_t spo2                 	     =  algoDataSamp.spo2 / 10;
-								 uint32_t spo2_conf                  =  algoDataSamp.spo2_conf;
-
-								 SERIALOUT(" greenCnt= %d , irCnt= %d , redCnt = %d ,"
-										   " hr= %d , hr_conf= %d , spo2= %d , spo2_conf= %d \r\n"
-										   , green_led_cnt , ir_led_cnt , red_led_cnt
-										   , hr , hr_conf , spo2 , spo2_conf );
-
-								 sampleIdx += 1;
+                                sampleIdx += 1;
+                                p++;
 
 							 } //eof loop reading bytyes from hub report fifo
 
@@ -364,7 +380,7 @@ int measure_whrm_wspo2_extended_report( void ){
     	 if( accelBehavior == SH_INPUT_DATA_FROM_HOST) {
 
 //    		 FeedAccDataIntoSensHub ();
-            rt_kprintf("[Y]error:unsupported mode\n");
+            LOG_E("[Y]error:unsupported mode\n");
     	 }
 
 
@@ -449,7 +465,7 @@ int measure_whrm_wspo2_extended_report( void ){
 								 algoDataSamp.spo2State 			 =  (*ptr++);
 
 
-								SERIALOUT(
+								LOG_D(
 									    "%lu,%lu,%lu,%lu,%lu,%lu,%.3f,%.3f,%.3f,%u,%.1f,%d,%.1f,%d,%u,%lu,%lu,%lu,%lu,%d,%.1f,%d,%.1f,%d,%.1f,%d,%d,%d,%d,%d,%d,%d,%d,%.1f,%d,%.1f,%d,%d,%d,%d,%d,%d \r\n",
 										ppgDataSample.led1,ppgDataSample.led2,ppgDataSample.led3,ppgDataSample.led4,ppgDataSample.led5,ppgDataSample.led6,
 										accelDataSamp.x * 0.001,accelDataSamp.y * 0.001,accelDataSamp.z * 0.001,
@@ -640,7 +656,7 @@ int get_raw_ppg( void ){
 									 accelDataSamp.y                    =  (*ptr++ << 8)  + (*ptr++ << 0);
 									 accelDataSamp.z                    =  (*ptr++ << 8)  + (*ptr++ << 0);
 #endif
-									 SERIALOUT(" led1Cnt= %d , led2Cnt= %d , led3Cnt= %d, led4Cnt= %d, led5Cnt= %d, led6Cnt= %d \r\n" , ppgDataSample.led1,
+									 LOG_D(" led1Cnt= %d , led2Cnt= %d , led3Cnt= %d, led4Cnt= %d, led5Cnt= %d, led6Cnt= %d \r\n" , ppgDataSample.led1,
 											 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	      	    ppgDataSample.led2,
 																																		ppgDataSample.led3,
 																																		ppgDataSample.led4,
