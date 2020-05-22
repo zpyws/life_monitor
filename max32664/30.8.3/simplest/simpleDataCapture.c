@@ -34,13 +34,20 @@
 
 #define LOG_TAG                         "max32664"
 #define LOG_LVL                         LOG_LVL_DBG
-#include <ulog.h>
 
 #include "SHComm.h"
 
 #include "demoDefinitions.h"
 #include "algoConfigAPI.h"
 #include "simpleDataCapture.h"
+
+#define PRINT_MAXIM_ANALYSIS_RAW_DATA           1
+
+#if PRINT_MAXIM_ANALYSIS_RAW_DATA > 0
+    #undef LOG_LVL
+    #define LOG_LVL         LOG_LVL_ASSERT
+#endif
+#include <ulog.h>
 
 //by yangwensen@20200521
 struct max32664_normal_algorithm_report
@@ -244,7 +251,7 @@ int measure_whrm_wspo2(  uint8_t reportPeriod_in40msSteps ,   uint8_t algoSuiteO
     	 if( accelBehavior == SH_INPUT_DATA_FROM_HOST) {
 
 //    		 FeedAccDataIntoSensHub ();
-            LOG_E("error: unsupported mode\n");
+            LOG_E("error: unsupported mode");
     	 }
 
         rt_thread_mdelay(poolPeriod_ms);        //by yangwensen@20200518
@@ -268,7 +275,7 @@ int measure_whrm_wspo2(  uint8_t reportPeriod_in40msSteps ,   uint8_t algoSuiteO
 						 status = sh_read_fifo_data(num_samples, PPG_REPORT_SIZE + ACCEL_REPORT_SIZE + ALGO_REPORT_SIZE, &databuf[0], sizeof(databuf));
 						 if(status == SS_SUCCESS){
 
-							 LOG_D(" data pull >> %d \r\n" , num_samples);
+							 LOG_D(" data pull >> %d" , num_samples);
 
 							 whrm_wspo2_suite_mode1_data     algoDataSamp;
 
@@ -279,9 +286,10 @@ int measure_whrm_wspo2(  uint8_t reportPeriod_in40msSteps ,   uint8_t algoSuiteO
 
 							 int sampleIdx = 0;
 							 while( sampleIdx < num_samples ) {
-//                            ulog_hexdump("raw data", 16, ptr, 43);
-//                            max32664_print_raw_data(ptr, 44);
-
+//                            ulog_hexdump("raw data", 16, ptr, 44);
+                        #if PRINT_MAXIM_ANALYSIS_RAW_DATA > 0
+                            max32664_print_raw_data((uint8_t *)p, 44);
+                        #endif
 								 algoDataSamp.current_operating_mode =  p->op_mode;
 								 algoDataSamp.hr                     =  (p->hr[0]<<8) + p->hr[1];
 								 algoDataSamp.hr_conf                =  p->hr_confidence;
@@ -299,7 +307,7 @@ int measure_whrm_wspo2(  uint8_t reportPeriod_in40msSteps ,   uint8_t algoSuiteO
 								 algoDataSamp.spo2State 			 =  p->spo2_state;
 								 algoDataSamp.scd_contact_state 	 =  p->scd_state;
 
-								 LOG_D("hr= %d, hr_conf= %d, spo2= %d, spo2_conf= %d\r\n"
+								 LOG_D("hr=%d, hr_conf=%d, spo2=%d, spo2_conf=%d"
 										   , algoDataSamp.hr , p->hr_confidence , algoDataSamp.spo2 , p->spo2_confidence );
 
                                 sampleIdx += 1;
@@ -380,7 +388,7 @@ int measure_whrm_wspo2_extended_report( void ){
     	 if( accelBehavior == SH_INPUT_DATA_FROM_HOST) {
 
 //    		 FeedAccDataIntoSensHub ();
-            LOG_E("[Y]error:unsupported mode\n");
+            LOG_E("[Y]error:unsupported mode");
     	 }
 
 
@@ -466,7 +474,7 @@ int measure_whrm_wspo2_extended_report( void ){
 
 
 								LOG_D(
-									    "%lu,%lu,%lu,%lu,%lu,%lu,%.3f,%.3f,%.3f,%u,%.1f,%d,%.1f,%d,%u,%lu,%lu,%lu,%lu,%d,%.1f,%d,%.1f,%d,%.1f,%d,%d,%d,%d,%d,%d,%d,%d,%.1f,%d,%.1f,%d,%d,%d,%d,%d,%d \r\n",
+									    "%lu,%lu,%lu,%lu,%lu,%lu,%.3f,%.3f,%.3f,%u,%.1f,%d,%.1f,%d,%u,%lu,%lu,%lu,%lu,%d,%.1f,%d,%.1f,%d,%.1f,%d,%d,%d,%d,%d,%d,%d,%d,%.1f,%d,%.1f,%d,%d,%d,%d,%d,%d",
 										ppgDataSample.led1,ppgDataSample.led2,ppgDataSample.led3,ppgDataSample.led4,ppgDataSample.led5,ppgDataSample.led6,
 										accelDataSamp.x * 0.001,accelDataSamp.y * 0.001,accelDataSamp.z * 0.001,
 										algoDataSamp.current_operating_mode,
@@ -656,7 +664,7 @@ int get_raw_ppg( void ){
 									 accelDataSamp.y                    =  (*ptr++ << 8)  + (*ptr++ << 0);
 									 accelDataSamp.z                    =  (*ptr++ << 8)  + (*ptr++ << 0);
 #endif
-									 LOG_D(" led1Cnt= %d , led2Cnt= %d , led3Cnt= %d, led4Cnt= %d, led5Cnt= %d, led6Cnt= %d \r\n" , ppgDataSample.led1,
+									 LOG_D(" led1Cnt= %d , led2Cnt= %d , led3Cnt= %d, led4Cnt= %d, led5Cnt= %d, led6Cnt= %d" , ppgDataSample.led1,
 											 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	      	    ppgDataSample.led2,
 																																		ppgDataSample.led3,
 																																		ppgDataSample.led4,
