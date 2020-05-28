@@ -34,8 +34,9 @@ extern int Image$$ER_RAM_NOINIT_DATA$$ZI$$Limit;							//by yangwensen@20200422
 #pragma section="CSTACK"
 #define HEAP_BEGIN      (__segment_end("CSTACK"))
 #else
-extern int __bss_end;
-#define HEAP_BEGIN      (&__bss_end)
+//extern int __bss_end;
+extern int __bss_end__;
+#define HEAP_BEGIN      (&__bss_end__)
 #endif
 
 #define HEAP_END        CY8C63_SRAM_END     //by yangwensen@20200311
