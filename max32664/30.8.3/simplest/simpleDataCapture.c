@@ -41,7 +41,7 @@
 #include "algoConfigAPI.h"
 #include "simpleDataCapture.h"
 
-#define PRINT_MAXIM_ANALYSIS_RAW_DATA           1
+#define PRINT_MAXIM_ANALYSIS_RAW_DATA           0
 
 #if PRINT_MAXIM_ANALYSIS_RAW_DATA > 0
     #undef LOG_LVL
@@ -175,11 +175,9 @@ int FeedAccDataIntoSensHub (void) {
 
 int measure_whrm_wspo2(  uint8_t reportPeriod_in40msSteps ,   uint8_t algoSuiteOperatingMode ){
 
-	 const int sensHubReportFifoThresh      = 1;
-	 const int MAX_WHRMWSPO2_SAMPLE_COUNT   = 45;
-     const int WHRMWSPO2_FRAME_SIZE         = sizeof(accel_mode1_data)
-			                                  + sizeof(max8614x_mode1_data)
-									          + sizeof(whrm_wspo2_suite_mode1_data);
+	 #define sensHubReportFifoThresh            1
+	 #define MAX_WHRMWSPO2_SAMPLE_COUNT         45
+     #define WHRMWSPO2_FRAME_SIZE           (sizeof(accel_mode1_data) + sizeof(max8614x_mode1_data) + sizeof(whrm_wspo2_suite_mode1_data))
 
 	 static uint8_t databuf[WHRMWSPO2_FRAME_SIZE * MAX_WHRMWSPO2_SAMPLE_COUNT + 1];
 
@@ -330,11 +328,9 @@ int measure_whrm_wspo2(  uint8_t reportPeriod_in40msSteps ,   uint8_t algoSuiteO
 
 int measure_whrm_wspo2_extended_report( void ){
 
-     const int sensHubReportFifoThresh      = 1;
-	 const int MAX_WHRMWSPO2_SAMPLE_COUNT   = 45;
-     const int WHRMWSPO2_FRAME_SIZE         = sizeof(accel_mode1_data)
-			                                  + sizeof(max8614x_mode1_data)
-									          + sizeof(whrm_wspo2_suite_mode2_data);
+     #define sensHubReportFifoThresh                1
+	 #define MAX_WHRMWSPO2_SAMPLE_COUNT             45
+     #define WHRMWSPO2_FRAME_SIZE                   (sizeof(accel_mode1_data)+sizeof(max8614x_mode1_data)+sizeof(whrm_wspo2_suite_mode2_data))
 
 	 static uint8_t databuf[WHRMWSPO2_FRAME_SIZE * MAX_WHRMWSPO2_SAMPLE_COUNT + 1];
 	 //static int sHubInputFifoSz = 0;
@@ -519,12 +515,13 @@ int measure_whrm_wspo2_extended_report( void ){
 
 int get_raw_ppg( void ){
 
-     const int sensHubReportFifoThresh             = 1;
-     const int sensHubAfeFundametalsamplePeriod    = 40;
-     const int MAX_RAWPPG_SAMPLE_COUNT             = 45;
+     #define sensHubReportFifoThresh                1
+     #define sensHubAfeFundametalsamplePeriod       40
+     #define MAX_RAWPPG_SAMPLE_COUNT                45
 #ifdef PPG_ACCEL_RAW_MODE
-     const int RAWPPG_FRAME_SIZE                   = sizeof(accel_mode1_data)
-			                                         + sizeof(max8614x_mode1_data);
+//     const int RAWPPG_FRAME_SIZE                   = sizeof(accel_mode1_data)
+//			                                         + sizeof(max8614x_mode1_data);
+     #define RAWPPG_FRAME_SIZE                    (sizeof(accel_mode1_data)+ sizeof(max8614x_mode1_data))
 #else
      const int RAWPPG_FRAME_SIZE                   = sizeof(max8614x_mode1_data);
 #endif

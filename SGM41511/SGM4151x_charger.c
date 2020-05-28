@@ -37,7 +37,7 @@
 typedef unsigned char           bool;
 typedef uint8_t                 u8;
 typedef int32_t                 s32;
-typedef rt_base_t               ssize_t;
+//typedef rt_base_t               ssize_t;
 typedef enum irqreturn {IRQ_NONE, IRQ_HANDLED, IRQ_WAKE_THREAD,}irqreturn_t;
 
 #define pr_err                  LOG_E
