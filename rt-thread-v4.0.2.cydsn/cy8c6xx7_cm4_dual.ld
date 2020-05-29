@@ -270,7 +270,6 @@ SECTIONS
       KEEP(*(.noinit))
     } > ram
 
-
     /* The uninitialized global or static variables are placed in this section.
     *
     * The NOLOAD attribute tells linker that .bss section does not consume
@@ -315,7 +314,7 @@ SECTIONS
 
     /* Set stack top to end of RAM, and stack limit move down by
      * size of stack_dummy section */
-    __StackTop = ORIGIN(ram) + LENGTH(ram);
+    __StackTop = ORIGIN(ram) + LENGTH(ram) - 64;
     __StackLimit = __StackTop - SIZEOF(.stack_dummy);
     PROVIDE(__stack = __StackTop);
 
