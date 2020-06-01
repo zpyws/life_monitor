@@ -121,29 +121,29 @@ void LoRaNode_SetWake(LoRaNode_SleepMode_T Mode);
 void LoRaNode_Reset(void);
 //----------------------------------AT指令函数集----------------------------------//
 char *LoRaNode_GetVer(void);
-void LoRaNode_Getpoint(uint8_t *AT_Command,uint8_t *AT_Value);
+void LoRaNode_Getpoint(char*AT_Command,uint8_t *AT_Value);
 void LoRaNode_GetState(Status_Info *LoRa_temp);
 
 int LoRaNode_SetGPIO(uint32_t pin, uint32_t state);
 // 该函数用于通过AT指令设置M90的参数（适用于参数为整型）
-int LoRaNode_Setinteger(uint8_t *AT_Command,uint32_t AT_Value);
+int LoRaNode_Setinteger(char *AT_Command,uint32_t AT_Value);
 // 该函数用于通过AT指令设置M90的参数（适用于参数为数组，字符串）。 
-int LoRaNode_Setpoint(uint8_t *AT_Command,uint8_t *AT_Key);
+int LoRaNode_Setpoint(char *AT_Command,char *AT_Key);
 // 该函数用于在M90工作在Mini RF模式下，通过AT指令设置Mini RF的射频参数。  
 int LoRaNode_SetP2P(uint32_t f,uint8_t a,uint8_t b,uint8_t c,uint8_t d,uint8_t e,uint8_t ff,uint8_t g,uint16_t h);
 int LoRaNode_SetFreq(uint8_t Up_Dn,uint8_t Ch_Cnt,uint32_t Start_Freq);
     
 //---------------------------------串口通信函数集---------------------------------//
 void LoRaNode_SendData(uint8_t *pdata, uint16_t Length);
-void LoRaNode_Send_AT(uint8_t *at_buf);
+void LoRaNode_Send_AT(char *at_buf);
 void LoRaNode_Read(uint8_t *str);
 
 //----------------------------------公共函数集------------------------------------//
 char *StringStr(char *str, char *dest);
 uint8_t StrToHex(uint8_t temp);
-uint8_t *StringConcat(uint8_t *str, const uint8_t *string);
-uint8_t *StringConcat2(uint8_t *str, const uint8_t *string);
-void IntToStr(uint8_t* str, int32_t intnum);
+char *StringConcat(char *str, const char *string);
+char *StringConcat2(char *str, const char *string);
+void IntToStr(char* str, int32_t intnum);
 int CopyArray(uint8_t *str, const uint8_t *string);
 void LoRaNode_ErrorHandler(void);
 

@@ -126,9 +126,9 @@ char *LoRaNode_GetVer(void)
   * @参数： AT_Command AT指令，  *AT_Value M90返回值
   * @返回值：AT_Value
   */
-void LoRaNode_Getpoint(uint8_t *AT_Command,uint8_t *AT_Value)
+void LoRaNode_Getpoint(char *AT_Command,uint8_t *AT_Value)
 {
-    uint8_t Command[20] = {0};
+    char Command[20] = {0};
     uint8_t Check[10] = {0};
     char *ptr = NULL;   
     uint8_t stringlen;
@@ -197,7 +197,7 @@ void LoRaNode_Getpoint(uint8_t *AT_Command,uint8_t *AT_Value)
   */
 void LoRaNode_GetState(Status_Info *LoRa_temp)                                    
 {
-    uint8_t GetSTATUS[] = "AT+STATUS?\r\n";
+    char GetSTATUS[] = "AT+STATUS?\r\n";
     char *temp = "+STATUS:";
     char *ptr = NULL;    
     uint8_t dec=0,dec1=0,dec2=0,dec3=0,dec4=0,dec5=0,dec6=0,dec7=0;
@@ -297,8 +297,8 @@ void LoRaNode_GetState(Status_Info *LoRa_temp)
   */
 int LoRaNode_SetGPIO(uint32_t pin, uint32_t state)
 {    
-    uint8_t gpio[20] = "AT+GPIO=";
-    uint8_t buf[5] = {0};
+    char gpio[20] = "AT+GPIO=";
+    char buf[5] = {0};
     char *temp = "OK";
     char *ptr = (char*)gpio;
     
@@ -323,10 +323,10 @@ int LoRaNode_SetGPIO(uint32_t pin, uint32_t state)
   * @参数： AT_Command AT指令，AT_Value 参数值
   * @返回值：0配置正确，-1配置错误
   */
-int LoRaNode_Setinteger(uint8_t *AT_Command,uint32_t AT_Value)
+int LoRaNode_Setinteger(char *AT_Command,uint32_t AT_Value)
 {    
-    uint8_t Command[20] = {0};
-    uint8_t buf[10] = {0};
+    char Command[20] = {0};
+    char buf[10] = {0};
     char *temp = "OK";
     
     strcpy((char*)Command,(const char*)AT_Command);   
@@ -348,9 +348,9 @@ int LoRaNode_Setinteger(uint8_t *AT_Command,uint32_t AT_Value)
   * @参数： AT_Command AT指令，AT_Key 参数值
   * @返回值：0配置正确，-1配置错误
   */
-int LoRaNode_Setpoint(uint8_t *AT_Command,uint8_t *AT_Key)
+int LoRaNode_Setpoint(char *AT_Command,char *AT_Key)
 {
-    uint8_t Command[80] = {0};
+    char Command[80] = {0};
     char *temp = "OK";
     
     strcpy((char*)Command,(const char*)AT_Command);
@@ -373,7 +373,7 @@ int LoRaNode_Setpoint(uint8_t *AT_Command,uint8_t *AT_Key)
   */
 int LoRaNode_SetFreq(uint8_t Up_Dn,uint8_t Ch_Cnt,uint32_t Start_Freq)
 {
-    uint8_t FREQ[30];
+    char FREQ[30];
     char *temp = "OK";
     
     rt_sprintf((char *)FREQ,"AT+FREQ=%d,%d,%d\r\n\0",Up_Dn,Ch_Cnt,Start_Freq);    
@@ -394,18 +394,18 @@ int LoRaNode_SetFreq(uint8_t Up_Dn,uint8_t Ch_Cnt,uint32_t Start_Freq)
   */
 int LoRaNode_SetP2P(uint32_t f,uint8_t a,uint8_t b,uint8_t c,uint8_t d,uint8_t e,uint8_t ff,uint8_t g,uint16_t h)
 {
-    uint8_t SetDebug[50] = "AT+RADIO=";
-    uint8_t buf[10] = {0}; 
-    uint8_t buf1[10] = {0}; 
-    uint8_t buf2[10] = {0}; 
-    uint8_t buf3[10] = {0}; 
-    uint8_t buf4[10] = {0}; 
-    uint8_t buf5[10] = {0}; 
-    uint8_t buf6[10] = {0}; 
-    uint8_t buf7[10] = {0}; 
-    uint8_t buf8[10] = {0}; 
+    char SetDebug[50] = "AT+RADIO=";
+    char buf[10] = {0}; 
+    char buf1[10] = {0}; 
+    char buf2[10] = {0}; 
+    char buf3[10] = {0}; 
+    char buf4[10] = {0}; 
+    char buf5[10] = {0}; 
+    char buf6[10] = {0}; 
+    char buf7[10] = {0}; 
+    char buf8[10] = {0}; 
     
-    uint8_t dou[2] = ",";
+    char dou[2] = ",";
     char *temp = "OK";
     
     IntToStr(buf, f);
@@ -473,7 +473,7 @@ void LoRaNode_SendData(uint8_t *pdata, uint16_t Length)
   * @参数： at_buf 要发送的AT指令  
   * @返回值：无
   */
-void LoRaNode_Send_AT(uint8_t *at_buf)
+void LoRaNode_Send_AT(char *at_buf)
 {
     lora_write((uint8_t *)at_buf, rt_strlen((const char *)at_buf));
 }
@@ -575,9 +575,9 @@ uint8_t StrToHex(uint8_t temp)
   * @参数：   
   * @返回值：无
   */
-uint8_t *StringConcat(uint8_t *str, const uint8_t *string)
+char *StringConcat(char *str, const char *string)
 {
-    uint8_t *s = str;
+    char *s = str;
     
     while(*s)
     {
@@ -601,9 +601,9 @@ uint8_t *StringConcat(uint8_t *str, const uint8_t *string)
   * @参数：   
   * @返回值：无
   */
-uint8_t *StringConcat2(uint8_t *str, const uint8_t *string)
+char *StringConcat2(char *str, const char *string)
 {
-    uint8_t *s = str;
+    char *s = str;
     
     while(*s)
     {
@@ -623,7 +623,7 @@ uint8_t *StringConcat2(uint8_t *str, const uint8_t *string)
   * @参数：   
   * @返回值：无
   */
-void IntToStr(uint8_t* str, int32_t intnum)
+void IntToStr(char* str, int32_t intnum)
 {
     uint32_t i, Div = 1000000000, j = 0, Status = 0;
     
@@ -657,7 +657,7 @@ void IntToStr(uint8_t* str, int32_t intnum)
   */
 int CopyArray(uint8_t *str, const uint8_t *string)
 {
-    if(str == NULL | *string == NULL)
+    if( (str == NULL) || (*string == 0) )
         return -1;    
     while(*string)
     {
