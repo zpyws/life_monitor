@@ -291,7 +291,7 @@ static rt_uint32_t qspixfer(struct rt_spi_device *device, struct rt_spi_message 
     const rt_uint8_t *sndb = message->send_buf;
     rt_uint8_t *rcvb = message->recv_buf;
     rt_int32_t length = message->length;
-    cy_en_smif_txfr_width_t data_width;
+    cy_en_smif_txfr_width_t data_width = CY_SMIF_WIDTH_SINGLE;
     cy_en_smif_status_t status;
 
 #ifdef BSP_QSPI_USING_SOFTCS

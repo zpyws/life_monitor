@@ -199,7 +199,7 @@ static const struct pin_index pins[] =
 #endif /* defined(GPIO_PRT0) */
 };
 
-#define __CYPRESS_PORT_IRQ_HANDLER(n)     {Port##n##_IRQHandler}
+#define __CYPRESS_PORT_IRQ_HANDLER(n)     Port##n##_IRQHandler
 #define __CYPRESS_PORT_IRQ_HANDLER__(n)     __CYPRESS_PORT_IRQ_HANDLER(n)
 
 void Port0_IRQHandler(void);
