@@ -81,10 +81,75 @@ struct max32664_normal_algorithm_report
     uint8_t scd_state;
 };
 
+//by yangwensen@20200529
+struct max32664_extendede_algorithm_report
+{
+    uint8_t ppg1[3];
+    uint8_t ppg2[3];
+    uint8_t ppg3[3];
+    uint8_t ppg4[3];
+    uint8_t ppg5[3];
+    uint8_t ppg6[3];
+    
+    uint8_t accx[2];
+    uint8_t accy[2];
+    uint8_t accz[2];
+    
+    uint8_t op_mode;
+    uint8_t hr[2];
+    uint8_t hr_confidence;
+    uint8_t rr[2];
+    uint8_t rr_confidence;
+    uint8_t activity_class;
+    uint8_t total_walk_steps[4];
+    uint8_t total_run_steps[4];
+    uint8_t total_energy_exp_in_kcal[4];
+    uint8_t total_amr_in_kcal[4];
+    uint8_t is_led_current_adjustment_requested_in_first_time_slot;
+    uint8_t adjusted_led_current_in_first_time_slot[2];
+    uint8_t is_led_current_adjustment_requested_in_second_time_slot;
+    uint8_t adjusted_led_current_in_second_time_slot[2];
+    uint8_t is_led_current_adjustment_requested_in_third_time_slot;
+    uint8_t adjusted_led_current_in_third_time_slot[2];
+    uint8_t is_integration_time_adjustment_requested;
+    uint8_t requested_integration_time;
+    uint8_t is_sampling_rate_adjustment_requested;
+    uint8_t requested_sampling_rate;
+    uint8_t requested_sampling_average;
+    uint8_t whrm_afe_controller_state_for_hrm_channels;
+    uint8_t is_high_motion_for_hrm;
+    
+    uint8_t scd_state;
+    uint8_t r[2];
+    uint8_t spo2_confidence;
+    uint8_t spo2[2];
+    uint8_t spo2_complete;
+    uint8_t spo2_low_signal_quality_flag;
+    uint8_t spo2_motion_flag;
+    uint8_t spo2_low_pi_flag;
+    uint8_t spo2_unreliable_r_flag;
+    uint8_t spo2_status;
+};
+
+//by yangwensen@20200601
+struct max32664_raw_data_report
+{
+    uint8_t ppg1[3];
+    uint8_t ppg2[3];
+    uint8_t ppg3[3];
+    uint8_t ppg4[3];
+    uint8_t ppg5[3];
+    uint8_t ppg6[3];
+    
+    uint8_t accx[2];
+    uint8_t accy[2];
+    uint8_t accz[2];
+};
+
 static uint8_t accelBehavior = SH_INPUT_DATA_DIRECT_SENSOR; //SH_INPUT_DATA_FROM_HOST ;
 static rt_bool_t hasActiveMeasurement = RT_FALSE;
 static int sHubInputFifoSz = 5;
-static uint8_t sh_data_report_mode = SSHUB_ALGO_RAW_DATA_REPORT_MODE;
+//static uint8_t sh_data_report_mode = SSHUB_ALGO_RAW_DATA_REPORT_MODE;
 
 void max32664_print_raw_data(uint8_t *buff, uint8_t len);
 /* IMPORTANT:
@@ -330,9 +395,9 @@ int measure_whrm_wspo2_extended_report( void ){
 
      #define sensHubReportFifoThresh                1
 	 #define MAX_WHRMWSPO2_SAMPLE_COUNT             45
-     #define WHRMWSPO2_FRAME_SIZE                   (sizeof(accel_mode1_data)+sizeof(max8614x_mode1_data)+sizeof(whrm_wspo2_suite_mode2_data))
+     #define WHRMWSPO2_EXT_FRAME_SIZE                   (sizeof(accel_mode1_data)+sizeof(max8614x_mode1_data)+sizeof(whrm_wspo2_suite_mode2_data))
 
-	 static uint8_t databuf[WHRMWSPO2_FRAME_SIZE * MAX_WHRMWSPO2_SAMPLE_COUNT + 1];
+	 static uint8_t databuf[WHRMWSPO2_EXT_FRAME_SIZE * MAX_WHRMWSPO2_SAMPLE_COUNT + 1];
 	 //static int sHubInputFifoSz = 0;
 
 	 int status;
@@ -412,61 +477,64 @@ int measure_whrm_wspo2_extended_report( void ){
 							 accel_mode1_data                accelDataSamp;
 							 whrm_wspo2_suite_mode2_data     algoDataSamp;
 
-							 uint8_t *ptr = &databuf[1]; //first byte is status so skip it.
+                            struct max32664_extendede_algorithm_report *p = (struct max32664_extendede_algorithm_report *)&databuf[1];
+                            
 							 //uint8_t *end = &databuf[num_samples*WHRM_FRAME_SIZE];
 							 //while( ptr < end )
 
 							 int sampleIdx = 0;
 							 while( sampleIdx < num_samples ) {
+                                ppgDataSample.led1                  = (p->ppg1[0]<<16) + (p->ppg1[1]<<8) + (p->ppg1[2]<<0);
+                                ppgDataSample.led2                  = (p->ppg2[0]<<16) + (p->ppg2[1]<<8) + (p->ppg2[2]<<0);
+                                ppgDataSample.led3                  = (p->ppg3[0]<<16) + (p->ppg3[1]<<8) + (p->ppg3[2]<<0);
+                                ppgDataSample.led4                  = (p->ppg4[0]<<16) + (p->ppg4[1]<<8) + (p->ppg4[2]<<0);
+                                ppgDataSample.led5                  = (p->ppg5[0]<<16) + (p->ppg5[1]<<8) + (p->ppg5[2]<<0);
+                                ppgDataSample.led6                  = (p->ppg6[0]<<16) + (p->ppg6[1]<<8) + (p->ppg6[2]<<0);
+                                
+                                accelDataSamp.x = (p->accx[0]<<8) + (p->accx[1]<<0);
+                                accelDataSamp.y = (p->accy[0]<<8) + (p->accy[1]<<0);
+                                accelDataSamp.z = (p->accz[0]<<8) + (p->accz[1]<<0);
+                                
+                                
+                                
+								 algoDataSamp.current_operating_mode =  p->op_mode;
+                                
+								 algoDataSamp.hr                     =  (p->hr[0]<<8) + (p->hr[1]<<0);
+								 algoDataSamp.hr_conf                =  p->hr_confidence;
+								 algoDataSamp.rr                     =  (p->rr[0]<<8) + (p->rr[1]<<0);
+								 algoDataSamp.rr_conf      			 =  p->rr_confidence;
+								 algoDataSamp.activity_class         =  p->activity_class;
 
-								 ppgDataSample.led1  			     =  (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
-								 ppgDataSample.led2  			     =  (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
-								 ppgDataSample.led3  			     =  (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
-								 ppgDataSample.led4  				 =  (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
-								 ppgDataSample.led5  				 =  (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
-								 ppgDataSample.led6  				 =  (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
+								 algoDataSamp.walk_steps             =  (p->total_walk_steps[0] << 24) + (p->total_walk_steps[1] << 16) + (p->total_walk_steps[2] << 8) + (p->total_walk_steps[3] << 0);
+								 algoDataSamp.run_steps              =  (p->total_run_steps[0] << 24) + (p->total_run_steps[1] << 16) + (p->total_run_steps[2] << 8) + (p->total_run_steps[3] << 0);
+								 algoDataSamp.kcal                   =  (p->total_energy_exp_in_kcal[0] << 24) + (p->total_energy_exp_in_kcal[1] << 16) + (p->total_energy_exp_in_kcal[2] << 8) + (p->total_energy_exp_in_kcal[3] << 0);
+								 algoDataSamp.cadence                =  (p->total_amr_in_kcal[0] << 24) + (p->total_amr_in_kcal[1] << 16) + (p->total_amr_in_kcal[2] << 8) + (p->total_amr_in_kcal[3] << 0);
 
-								 accelDataSamp.x                     =  (*ptr++ << 8)  + (*ptr++ << 0);
-								 accelDataSamp.y                     =  (*ptr++ << 8)  + (*ptr++ << 0);
-								 accelDataSamp.z                     =  (*ptr++ << 8)  + (*ptr++ << 0);
+								 algoDataSamp.is_led_cur1_adj        =  p->is_led_current_adjustment_requested_in_first_time_slot;
+								 algoDataSamp.adj_led_cur1           =  (p->adjusted_led_current_in_first_time_slot[0] << 8)  + (p->adjusted_led_current_in_first_time_slot[1] << 0);
+								 algoDataSamp.is_led_cur2_adj        =  p->is_led_current_adjustment_requested_in_second_time_slot;
+								 algoDataSamp.adj_led_cur2           =  (p->adjusted_led_current_in_second_time_slot[0] << 8)  + (p->adjusted_led_current_in_second_time_slot[1] << 0);
+								 algoDataSamp.is_led_cur3_adj        =  p->is_led_current_adjustment_requested_in_third_time_slot;
+								 algoDataSamp.adj_led_cur3           =  (p->adjusted_led_current_in_third_time_slot[0] << 8)  + (p->adjusted_led_current_in_third_time_slot[1] << 0);
 
-								 algoDataSamp.current_operating_mode =  (*ptr++);
-								 algoDataSamp.hr                     =  (*ptr++ << 8)  + (*ptr++ << 0);
-								 algoDataSamp.hr_conf                =  (*ptr++);
-								 algoDataSamp.rr                     =  (*ptr++ << 8)  + (*ptr++ << 0);
-								 algoDataSamp.rr_conf      			 =  (*ptr++);
-								 algoDataSamp.activity_class         =  (*ptr++);
+								 algoDataSamp.is_int_time_adj        =  p->is_integration_time_adjustment_requested;
+								 algoDataSamp.t_int_code             =  p->requested_integration_time;
+								 algoDataSamp.is_f_smp_adj           =  p->is_sampling_rate_adjustment_requested;
+								 algoDataSamp.adj_f_smp 			 =  p->requested_sampling_rate;
+								 algoDataSamp.smp_ave                =  p->requested_sampling_average;
+								 algoDataSamp.hrm_afe_state          =  p->whrm_afe_controller_state_for_hrm_channels;
+								 algoDataSamp.is_high_motion         =  p->is_high_motion_for_hrm;
+								 algoDataSamp.scd_contact_state      =  p->scd_state;
 
-								 algoDataSamp.walk_steps             =  (*ptr++ << 24) + (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
-								 algoDataSamp.run_steps              =  (*ptr++ << 24) + (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
-								 algoDataSamp.kcal                   =  (*ptr++ << 24) + (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
-								 algoDataSamp.cadence                =  (*ptr++ << 24) + (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
-
-								 algoDataSamp.is_led_cur1_adj        =  (*ptr++);
-								 algoDataSamp.adj_led_cur1           =  (*ptr++ << 8)  + (*ptr++ << 0);
-								 algoDataSamp.is_led_cur2_adj        =  (*ptr++);
-								 algoDataSamp.adj_led_cur2           =  (*ptr++ << 8)  + (*ptr++ << 0);
-								 algoDataSamp.is_led_cur3_adj        =  (*ptr++);
-								 algoDataSamp.adj_led_cur3           =  (*ptr++ << 8)  + (*ptr++ << 0);
-
-								 algoDataSamp.is_int_time_adj        =  (*ptr++);
-								 algoDataSamp.t_int_code             =  (*ptr++);
-								 algoDataSamp.is_f_smp_adj           =  (*ptr++);
-								 algoDataSamp.adj_f_smp 			 =  (*ptr++);
-								 algoDataSamp.smp_ave                =  (*ptr++);
-								 algoDataSamp.hrm_afe_state          =  (*ptr++);
-								 algoDataSamp.is_high_motion         =  (*ptr++);
-								 algoDataSamp.scd_contact_state      =  (*ptr++);
-
-								 algoDataSamp.r                      =  (*ptr++ << 8)  + (*ptr++ << 0);
-								 algoDataSamp.spo2_conf              =  (*ptr++);
-								 algoDataSamp.spo2                   =  (*ptr++ << 8)  + (*ptr++ << 0);
-								 algoDataSamp.percentComplete 		 =  (*ptr++);
-								 algoDataSamp.lowSignalQualityFlag   =  (*ptr++);
-								 algoDataSamp.motionFlag 			 =  (*ptr++);
-								 algoDataSamp.lowPiFlag 			 =  (*ptr++);
-								 algoDataSamp.unreliableRFlag 		 =  (*ptr++);
-								 algoDataSamp.spo2State 			 =  (*ptr++);
+								 algoDataSamp.r                      =  (p->r[0] << 8)  + (p->r[1] << 0);
+								 algoDataSamp.spo2_conf              =  p->spo2_confidence;
+								 algoDataSamp.spo2                   =  (p->spo2[0] << 8)  + (p->spo2[1] << 0);
+								 algoDataSamp.percentComplete 		 =  p->spo2_complete;
+								 algoDataSamp.lowSignalQualityFlag   =  p->spo2_low_signal_quality_flag;
+								 algoDataSamp.motionFlag 			 =  p->spo2_motion_flag;
+								 algoDataSamp.lowPiFlag 			 =  p->spo2_low_pi_flag;
+								 algoDataSamp.unreliableRFlag 		 =  p->spo2_unreliable_r_flag;
+								 algoDataSamp.spo2State 			 =  p->spo2_status;
 
 
 								LOG_D(
@@ -496,6 +564,7 @@ int measure_whrm_wspo2_extended_report( void ){
 										algoDataSamp.spo2State );
 
 								 sampleIdx += 1;
+                                p++;
 
 							 } //eof loop reading bytyes from hub report fifo
 
@@ -641,26 +710,29 @@ int get_raw_ppg( void ){
 					 if(status == SS_SUCCESS ){
 
 								 max8614x_mode1_data ppgDataSample;
+                            #ifdef PPG_ACCEL_RAW_MODE
 								 accel_mode1_data    accelDataSamp;
+                                (void)accelDataSamp;
+                            #endif
 
-								 uint8_t *ptr = &databuf[1]; //first byte is status so skip it.
+                                struct max32664_raw_data_report *p = (struct max32664_raw_data_report *)(&databuf[1]);
 								 //uint8_t *end = &databuf[num_samples*WHRM_FRAME_SIZE];
 								 //while( ptr < end )
 
 								 int sampleIdx = 0;
 								 while( sampleIdx < num_samples ) {
 
-									 ppgDataSample.led1  			    =  (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
-									 ppgDataSample.led2  			    =  (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
-									 ppgDataSample.led3  			    =  (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
-									 ppgDataSample.led4  				=  (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
-									 ppgDataSample.led5  				=  (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
-									 ppgDataSample.led6  				=  (*ptr++ << 16) + (*ptr++ << 8) + (*ptr++ << 0);
-#ifdef PPG_ACCEL_RAW_MODE
-									 accelDataSamp.x                    =  (*ptr++ << 8)  + (*ptr++ << 0);
-									 accelDataSamp.y                    =  (*ptr++ << 8)  + (*ptr++ << 0);
-									 accelDataSamp.z                    =  (*ptr++ << 8)  + (*ptr++ << 0);
-#endif
+                                    ppgDataSample.led1                  = (p->ppg1[0]<<16) + (p->ppg1[1]<<8) + (p->ppg1[2]<<0);
+                                    ppgDataSample.led2                  = (p->ppg2[0]<<16) + (p->ppg2[1]<<8) + (p->ppg2[2]<<0);
+                                    ppgDataSample.led3                  = (p->ppg3[0]<<16) + (p->ppg3[1]<<8) + (p->ppg3[2]<<0);
+                                    ppgDataSample.led4                  = (p->ppg4[0]<<16) + (p->ppg4[1]<<8) + (p->ppg4[2]<<0);
+                                    ppgDataSample.led5                  = (p->ppg5[0]<<16) + (p->ppg5[1]<<8) + (p->ppg5[2]<<0);
+                                    ppgDataSample.led6                  = (p->ppg6[0]<<16) + (p->ppg6[1]<<8) + (p->ppg6[2]<<0);
+                                #ifdef PPG_ACCEL_RAW_MODE
+                                    accelDataSamp.x = (p->accx[0]<<8) + (p->accx[1]<<0);
+                                    accelDataSamp.y = (p->accy[0]<<8) + (p->accy[1]<<0);
+                                    accelDataSamp.z = (p->accz[0]<<8) + (p->accz[1]<<0);
+                                #endif
 									 LOG_D(" led1Cnt= %d , led2Cnt= %d , led3Cnt= %d, led4Cnt= %d, led5Cnt= %d, led6Cnt= %d" , ppgDataSample.led1,
 											 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	      	    ppgDataSample.led2,
 																																		ppgDataSample.led3,
@@ -669,6 +741,7 @@ int get_raw_ppg( void ){
 																																		ppgDataSample.led6  );
 
 									 sampleIdx += 1;
+                                    p++;
 
 								 } //eof loop reading bytyes from hub report fifo
 
