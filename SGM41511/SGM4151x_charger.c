@@ -876,12 +876,12 @@ static int SGM4151x_get_batt_property(struct SGM4151x *SGM,
 enum power_supply_property psp,
 union power_supply_propval *val)
 {
-    struct power_supply *bms_psy;// = get_bms_psy(SGM);
+//    struct power_supply *bms_psy = get_bms_psy(SGM);
 
-    int ret;
+    int ret = 0;
 
-    if (!bms_psy)
-        return -EINVAL;
+//    if (!bms_psy)
+//        return -EINVAL;
 
     //	ret = bms_psy->get_property(bms_psy, psp, val);
 
@@ -914,7 +914,7 @@ static int SGM4151x_get_prop_charge_type(struct SGM4151x *SGM)
 static int SGM4151x_get_prop_batt_present(struct SGM4151x *SGM)
 {
 //	union power_supply_propval batt_prop = {0,};
-	int ret;
+	int ret = 0;
 	
 //	ret = SGM4151x_get_batt_property(SGM,
 //	POWER_SUPPLY_PROP_PRESENT, &batt_prop);
@@ -929,7 +929,7 @@ static int SGM4151x_get_prop_batt_present(struct SGM4151x *SGM)
 static int SGM4151x_get_prop_batt_full(struct SGM4151x *SGM)
 {
 //	union power_supply_propval batt_prop = {0,};
-	int ret;
+	int ret = 0;
 
 #if 0
 	ret = SGM4151x_get_batt_property(SGM, 
@@ -983,7 +983,7 @@ static int SGM4151x_get_prop_charge_status(struct SGM4151x *SGM)
 	
 static int SGM4151x_get_prop_health(struct SGM4151x *SGM)
 {
-	int ret;
+	int ret = 0;
 	union power_supply_propval batt_prop = {0,};
 	
 	if (SGM->software_jeita_supported) {
@@ -1173,7 +1173,7 @@ enum power_supply_property prop)
 	
 static int SGM4151x_update_charging_profile(struct SGM4151x *SGM)
 {
-	int ret;
+	int ret = 0;
 	int chg_ma;
 	int chg_mv;
 	int icl;
@@ -1297,7 +1297,7 @@ static void SGM4151x_external_power_changed(struct power_supply *psy)
 	struct SGM4151x *SGM = container_of(psy, struct SGM4151x, batt_psy);
 	
 	union power_supply_propval prop = {0,};
-	int ret, current_limit = 0;
+	int ret = 0, current_limit = 0;
 	
 	
 //	ret = SGM->usb_psy->get_property(SGM->usb_psy, 
@@ -1967,7 +1967,7 @@ static void SGM4151x_discharge_jeita_workfunc(struct SGM4151x *SGM)
 //	schedule_delayed_work(&SGM->discharge_jeita_work, calculate_jeita_poll_interval(SGM) * HZ);
 }
 
-static const unsigned char* charge_stat_str[] = {
+static const char* charge_stat_str[] = {
 	"Not Charging",
 	"Precharging",
 	"Fast Charging",
