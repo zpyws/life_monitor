@@ -36,6 +36,6 @@ static int hw_motor_init(void)
     
     return RT_EOK;
 }
-INIT_BOARD_EXPORT(hw_motor_init);
+//INIT_BOARD_EXPORT(hw_motor_init);
 //************************************************************************************************************
 

@@ -150,7 +150,7 @@ int max30208_port(void)
 	
     return 0;
 }
-INIT_APP_EXPORT(max30208_port);
+//INIT_APP_EXPORT(max30208_port);
 
 
 
