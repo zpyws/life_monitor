@@ -16,6 +16,8 @@
       <Data key="1a7df504-a94e-4ee7-b19f-7a16fc9ad899/b7e8018e-1ef7-49c0-b5a5-61641a03e31c" value="UART2_rx" />
       <Data key="1a315d4e-11ad-434b-8658-c622908c1810/2aab8a93-e7dd-4bd4-8210-42652cd079c5" value="I2C4_sda" />
       <Data key="1a315d4e-11ad-434b-8658-c622908c1810/69c3b5e8-b094-4d65-b96b-9f4f3a9a8641" value="I2C4_scl" />
+      <Data key="1eb1827a-be9a-4a54-b2e2-6dc2b13ff791/2aab8a93-e7dd-4bd4-8210-42652cd079c5" value="I2C5_sda" />
+      <Data key="1eb1827a-be9a-4a54-b2e2-6dc2b13ff791/69c3b5e8-b094-4d65-b96b-9f4f3a9a8641" value="I2C5_scl" />
       <Data key="4cca878b-77b5-471d-8aeb-ad6925202455" value="HOME_KEY" />
       <Data key="26a270ef-d524-4a8f-8147-304cf639fca7/6ba19c63-25fc-4919-b4e0-53fabfc62c78" value="QSPI1_spi_data_1" />
       <Data key="26a270ef-d524-4a8f-8147-304cf639fca7/7a693b7d-1138-46db-9780-4b3c4d88691d" value="QSPI1_spi_data_3" />
@@ -740,6 +742,16 @@
     <Group key="1a315d4e-11ad-434b-8658-c622908c1810/69c3b5e8-b094-4d65-b96b-9f4f3a9a8641">
       <Group key="0">
         <Data key="Port Format" value="8,0" />
+      </Group>
+    </Group>
+    <Group key="1eb1827a-be9a-4a54-b2e2-6dc2b13ff791/2aab8a93-e7dd-4bd4-8210-42652cd079c5">
+      <Group key="0">
+        <Data key="Port Format" value="5,1" />
+      </Group>
+    </Group>
+    <Group key="1eb1827a-be9a-4a54-b2e2-6dc2b13ff791/69c3b5e8-b094-4d65-b96b-9f4f3a9a8641">
+      <Group key="0">
+        <Data key="Port Format" value="5,0" />
       </Group>
     </Group>
     <Group key="4cca878b-77b5-471d-8aeb-ad6925202455">

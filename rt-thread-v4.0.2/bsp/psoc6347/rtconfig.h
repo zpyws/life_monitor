@@ -215,7 +215,6 @@
 #define MAX_GPIO_INT_PINS 4
 #define BSP_USING_UART
 #define BSP_USING_UART1
-#define BSP_USING_UART5
 #define BSP_USING_UART6
 #define BSP_USING_SPI
 #define BSP_USING_SPI3
@@ -223,6 +222,7 @@
 #define BSP_USING_I2C
 #define BSP_USING_I2C0
 #define BSP_USING_I2C2
+#define BSP_USING_I2C5
 #define BSP_USING_ONCHIP_RTC
 #define BSP_RTC_USING_LSE
 

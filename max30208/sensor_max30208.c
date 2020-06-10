@@ -142,15 +142,15 @@ int max30208_port(void)
 {
     struct rt_sensor_config cfg;
 
-    cfg.intf.dev_name = "i2c2";
+    cfg.intf.dev_name = "i2c5";
     cfg.intf.user_data = (void *)(MAX30208_ADDR+0);
     cfg.irq_pin.pin = RT_PIN_NONE;
 
-    rt_hw_max30208_init("max30208", &cfg);
+    rt_hw_max30208_init("a", &cfg);
 	
     return 0;
 }
-//INIT_APP_EXPORT(max30208_port);
+INIT_APP_EXPORT(max30208_port);
 
 
 
