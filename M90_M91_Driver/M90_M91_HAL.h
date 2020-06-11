@@ -14,11 +14,11 @@
 #include <stdint.h>
 
 /* LoRawan LoRaNode pin configuration */
-#define LoRaNode_WAKE_PIN					GET_PIN(10, 5)
+#define LoRaNode_WAKE_PIN					GET_PIN(10, 7)
 #define LoRaNode_MODE_PIN					GET_PIN(10, 6)
-#define LoRaNode_NRST_PIN					GET_PIN(10, 4)
-#define LoRaNode_STAT_PIN					GET_PIN(10, 3)
-#define LoRaNode_BUSY_PIN					GET_PIN(10, 2)
+#define LoRaNode_NRST_PIN					GET_PIN(10, 3)
+#define LoRaNode_STAT_PIN					GET_PIN(10, 4)
+#define LoRaNode_BUSY_PIN					GET_PIN(10, 5)
 
 #define RECEIVELEN 1024
 

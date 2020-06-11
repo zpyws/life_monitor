@@ -47,7 +47,7 @@ extern int send_sensor_data(void)
     int ret;
     struct rt_sensor_data sensor_data;
     
-    ret = sensor_temp("temp_max30208", &sensor_data);
+    ret = sensor_temp("temp_a", &sensor_data);
     if(ret)
         return -1;
     

@@ -2,12 +2,10 @@
 #include <board.h>
 //created by yangwensen@20200403
 #define LOG_TAG                         "LoRa"
-#define LOG_LVL                         LOG_LVL_DBG
+#define LOG_LVL                         LOG_LVL_INFO
 #include <ulog.h>
 #include "M90_M91_Interface.h"
 //********************************************************************************************************************************************
-#define HOME_KEY_PIN                    GET_PIN(7, 0)
-
 #define LORA_UART_DEVICE                "uart1"
 #define LORA_UART_RX_BUFF_SIZE          300
 

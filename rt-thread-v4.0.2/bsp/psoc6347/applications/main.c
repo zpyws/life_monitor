@@ -24,7 +24,7 @@ int main(void)
 //    max32664_startup();
     gps_startup();
 //    bms_startup();
-//    lora_startup();
+    lora_startup();
     while (count++)
     {
         rt_thread_mdelay(500);
