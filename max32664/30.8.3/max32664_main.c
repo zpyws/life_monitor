@@ -112,7 +112,7 @@ static void max32664_main(void *parameter)
 //by yangwensen@20200508
 extern void max32664_startup(void)
 {
-    rt_thread_t thread = rt_thread_create("max32664", max32664_main, RT_NULL, 2048, 26, 10);
+    rt_thread_t thread = rt_thread_create("max32664", max32664_main, RT_NULL, 2048, 23, 10);
     if (thread != RT_NULL)
     {
         rt_thread_startup(thread);

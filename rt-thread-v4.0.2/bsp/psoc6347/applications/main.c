@@ -21,7 +21,7 @@ int main(void)
 {
     int count = 1;
 
-//    max32664_startup();
+    max32664_startup();
     gps_startup();
 //    bms_startup();
     lora_startup();

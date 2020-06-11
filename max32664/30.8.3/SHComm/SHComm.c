@@ -81,11 +81,11 @@
 //I2C *m_i2cBus;                /*i2c  bus sensor hub is connected to*/
 
 #if defined(SYSTEM_USES_RST_PIN)
-    #define SENSORHUB_NRST_PIN					GET_PIN(9, 2)
+    #define SENSORHUB_NRST_PIN					GET_PIN(5, 6)
 //PinName ss_reset(P5_6);            /* platform specific sensor hub reset pin */
 //DigitalInOut reset_pin(ss_reset);  /* reset pin mode be I/O */
 #endif
-#define SENSORHUB_MFIO_PIN					GET_PIN(9, 4)
+#define SENSORHUB_MFIO_PIN					GET_PIN(0, 5)
 
 //PinName ss_mfio(P5_4);             /* platform specific mfio event pin */
 //DigitalInOut mfio_pin(ss_mfio);    /* mfio pin mode be I/O */
@@ -95,7 +95,7 @@
 
 //by yangwensen@20200508
 struct max32664_device max32664_dev;
-#define SENSORHUB_I2C_NAME                  "i2c2"
+#define SENSORHUB_I2C_NAME                  "i2c0"
 
 
 /* SENSOR HUB POLL TIMER. CUSTOMER SHALL USE THEIR OWN PLATFORM/OS TIMER */
