@@ -8,7 +8,7 @@
 #define LOG_LVL                 LOG_LVL_INFO
 #include <ulog.h>
 //********************************************************************************************************************************************
-#define GPS_UART                "uart6"
+#define GPS_UART                "uart2"
 #define GPS_RX_BUFF_SIZE        512
 
 #define GPS_PRINT_RAW_DATA      0
